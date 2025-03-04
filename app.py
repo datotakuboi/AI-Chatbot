@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 import time
 from streamlit_option_menu import option_menu
 
+# Set page config
+st.set_page_config(page_title="AI Chatbot", page_icon="🤖", layout="wide")
 
 # Load environment variables
 load_dotenv()
@@ -27,8 +29,6 @@ def initialize_firebase():
         
 initialize_firebase()
 
-# Set page config
-st.set_page_config(page_title="AI Chatbot", page_icon="🤖", layout="wide")
 
 # Sidebar navigation menu (only if the user is NOT logged in)
 if "user" not in st.session_state:
