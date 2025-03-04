@@ -128,15 +128,18 @@ with st.sidebar:
 st.title("🤖 AI Chatbot")
 st.write("💬 Ask me anything!")
 
-# Ensure at least one conversation exists
-if "current_chat" not in st.session_state or not st.session_state.conversations:
-    st.session_state.conversations = [[]]
+# Ensure at least one conversation exists before accessing it
+if "conversations" not in st.session_state:
+    st.session_state.conversations = [[]]  # Initialize with an empty conversation list
+
+if "current_chat" not in st.session_state:
     st.session_state.current_chat = 0
 
 # Display chat history in the main area
 for message in st.session_state.conversations[st.session_state.current_chat]:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
+
 
 user_input = st.chat_input("Type your message...")
 
