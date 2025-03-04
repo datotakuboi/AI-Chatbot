@@ -14,7 +14,7 @@ if "GEMINI_API_KEY" not in st.secrets:
     st.error("❌ Missing Gemini API Key in Streamlit secrets!")
     st.stop()
 
-API_KEY = st.secrets["GEMINI_API_KEY"]
+API_KEY = st.secrets["api_keys"]["GEMINI_API_KEY"]
 
 # ✅ Initialize Gemini AI
 genai.configure(api_key=API_KEY)
