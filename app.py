@@ -143,30 +143,30 @@ with st.sidebar:
         time.sleep(1)
         st.rerun()
 
-# ✅ **Centering Logo, Title, and Welcome Text**
-st.markdown("""
-    <style>
-    .center-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-    }
-    </style>
-""", unsafe_allow_html=True)
+# ✅ **Centering AI Chatbot Title and Welcome Text**
+col1, col2, col3 = st.columns([3, 4, 3])  # Creates three columns for alignment
 
-# Centering everything inside a div
-st.markdown('<div class="center-container">', unsafe_allow_html=True)
+with col1:
+    st.write(" ")  # Empty space to center the content
 
-# ✅ **Centered Logo**
-st.image("citlogo.png", width=250)  # Adjust the width if necessary
+with col2:
+    st.image("citlogo.png", width=250)  # Ensure the logo is centered
 
-# ✅ **Centered Title & Welcome Text**
-st.markdown("<h2 style='color: blue;'>Welcome to AI Chatbot</h2>", unsafe_allow_html=True)
-st.markdown("<p style='font-size: 18px;'>💬 Ask me anything!</p>", unsafe_allow_html=True)
+with col3:
+    st.write(" ")  # Empty space for symmetry
 
-st.markdown('</div>', unsafe_allow_html=True)  # Closing the div
+# Another row for centering the chatbot title and text
+col1, col2, col3 = st.columns([3, 4, 3])
+
+with col1:
+    st.write(" ")  # Empty space
+
+with col2:
+    st.markdown("## 🤖 Welcome to :blue[AI Chatbot]", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; font-size: 18px;'>💬 Ask me anything!</p>", unsafe_allow_html=True)
+
+with col3:
+    st.write(" ")  # Empty space
 
 
 # Ensure at least one conversation exists before accessing it
