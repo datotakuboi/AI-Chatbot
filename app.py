@@ -13,7 +13,7 @@ st.set_page_config(page_title="AI Chatbot", page_icon="🤖", layout="wide")
 
 # Load environment variables
 load_dotenv()
-API_KEY = os.getenv("GEMINI_API_KEY")
+API_KEY = st.secrets("GEMINI_API_KEY")
 
 # Initialize Gemini AI
 genai.configure(api_key=API_KEY)
