@@ -17,7 +17,7 @@ API_KEY = os.getenv("GEMINI_API_KEY")
 
 # Initialize Gemini AI
 genai.configure(api_key=API_KEY)
-model = genai.GenerativeModel("gemini-2.0-flash")
+model = genai.GenerativeModel("gemini-2.0-pro")
 
 # Initialize Firebase
 def initialize_firebase():
