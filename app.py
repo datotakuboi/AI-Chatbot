@@ -23,7 +23,6 @@ model = genai.GenerativeModel("gemini-2.0-flash")
 def initialize_firebase():
     if not firebase_admin._apps:
         try:
-            # Read Firebase credentials from Streamlit secrets
             firebase_credentials = dict(st.secrets["service_account"])
             cred = credentials.Certificate(firebase_credentials)
             firebase_admin.initialize_app(cred)
@@ -62,7 +61,7 @@ if "user" not in st.session_state:
                     st.error("❌ No user found. Please register first!")
                 except Exception as e:
                     st.error(f"❌ Error: {str(e)}")
-    
+
     elif selected == "Create Account":
         st.title("🆕 Create Account")
         with st.form("Register Form", clear_on_submit=False):
@@ -83,13 +82,8 @@ if "user" not in st.session_state:
             reset_submit = st.form_submit_button("Reset Password")
             if reset_submit:
                 try:
-                    # Generate a password reset link and instruct the user to check their email
-                    reset_link = auth.generate_password_reset_link(email)
-                    st.success(f"✅ Password reset link sent to **{email}**. Check your inbox!")
-
-                    # Display the reset link (for debugging or manual copy-paste)
-                    st.write(f"[Click here to reset your password]({reset_link})")
-
+                    auth.send_password_reset_email(email)
+                    st.success(f"✅ Password reset email sent to **{email}**. Check your inbox!")
                 except firebase_admin.auth.UserNotFoundError:
                     st.error("❌ No user found with this email.")
                 except Exception as e:
@@ -101,14 +95,14 @@ with st.sidebar:
     st.write(f"✅ Logged in as: **{st.session_state['user']['email']}**")
 
     if "conversations" not in st.session_state:
-        st.session_state.conversations = []
+        st.session_state.conversations = [[]]
 
     # New Chat Button
     if st.button("➕ New Chat"):
         st.session_state.conversations.append([])
         st.session_state.current_chat = len(st.session_state.conversations) - 1
         st.rerun()
-    
+
     # Display chat history
     st.markdown("### Chat History")
     for i, conv in enumerate(st.session_state.conversations):
@@ -119,7 +113,7 @@ with st.sidebar:
             if st.button("🗑 Delete", key=f"delete_{i}"):
                 del st.session_state.conversations[i]
                 st.rerun()
-    
+
     if st.button("🗑 Clear All Chats"):
         st.session_state.conversations = []
         st.rerun()
@@ -151,14 +145,24 @@ if user_input:
     with st.chat_message("user"):
         st.markdown(user_input)
     
-    # Loading indicator
-    with st.spinner("Thinking..."):
-        response = model.generate_content(user_input)
-        bot_response = response.text if response and response.text else "I'm not sure how to respond."
-        
+    # Loading indicator (real-time animation)
+    with st.chat_message("assistant"):
+        msg_placeholder = st.empty()
+        msg_placeholder.markdown("🤖 **Thinking...**")
+
+    # Generate response with reduced token size for faster replies
+    with st.spinner("Processing..."):
+        try:
+            response = model.generate_content(
+                user_input, generation_config={"max_output_tokens": 200}
+            )
+            bot_response = response.text if response and response.text else "I'm not sure how to respond."
+        except Exception as e:
+            bot_response = f"⚠️ Error: {str(e)}"
+
+    # Update UI with final response
     st.session_state.conversations[st.session_state.current_chat].append({"role": "assistant", "content": bot_response})
     
-    with st.chat_message("assistant"):
-        st.markdown(bot_response)
+    msg_placeholder.markdown(bot_response)  # Replace "Thinking..." with real response
     
     st.rerun()
