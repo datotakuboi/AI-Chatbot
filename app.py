@@ -143,14 +143,19 @@ with st.sidebar:
         time.sleep(1)
         st.rerun()
 
-# ✅ **Chatbot Interface (Centered Title and Text)**
-st.markdown(
-    """
-    <h1 style="text-align: center;">🤖 AI Chatbot</h1>
-    <p style="text-align: center; font-size: 18px;">💬 Ask me anything!</p>
-    """,
-    unsafe_allow_html=True
-)
+# ✅ **Centered Chatbot Title and Text**
+col1, col2, col3 = st.columns([3, 4, 3])
+
+with col1:
+    st.write(" ")  # Empty space for centering
+
+with col2:
+    st.markdown("<h1 style='text-align: center;'>🤖 AI Chatbot</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; font-size: 18px;'>💬 Ask me anything!</p>", unsafe_allow_html=True)
+
+with col3:
+    st.write(" ")  # Empty space for centering
+
 
 # Ensure at least one conversation exists before accessing it
 if "conversations" not in st.session_state:
