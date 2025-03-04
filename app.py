@@ -143,13 +143,6 @@ with st.sidebar:
         st.rerun()
 
 # ✅ **Centering AI Chatbot Title and Welcome Text**
-st.markdown(
-    """
-    <div style="display: flex; justify-content: center; align-items: center;">
-        <img src="citlogo.png" width="250">
-    </div>
-    """, unsafe_allow_html=True
-)
 
 # ✅ **Centered Title and Subtitle**
 st.markdown("<h2 style='text-align: center; color: white;'>Welcome to AI Chatbot</h2>", unsafe_allow_html=True)
