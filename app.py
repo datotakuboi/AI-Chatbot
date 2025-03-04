@@ -143,30 +143,24 @@ with st.sidebar:
         time.sleep(1)
         st.rerun()
 
-# ✅ **Centering AI Chatbot Title and Welcome Text**
-col1, col2, col3 = st.columns([3, 4, 3])  # Creates three columns for alignment
+# ✅ **Centering AI Chatbot Logo, Title, and Welcome Text**
+col1, col2, col3 = st.columns([3, 4, 3])  # Create three columns to center content
 
 with col1:
-    st.write(" ")  # Empty space to center the content
+    st.write("")  # Empty space for alignment
 
 with col2:
-    st.image("citlogo.png", width=250)  # Ensure the logo is centered
+    # ✅ Ensure the logo is properly centered
+    st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
+    st.image("citlogo.png", width=250)  # Adjust width if necessary
+    st.markdown("</div>", unsafe_allow_html=True)
 
-with col3:
-    st.write(" ")  # Empty space for symmetry
-
-# Another row for centering the chatbot title and text
-col1, col2, col3 = st.columns([3, 4, 3])
-
-with col1:
-    st.write(" ")  # Empty space
-
-with col2:
+    # ✅ Ensure the welcome text is properly centered
     st.markdown("<h2 style='text-align: center; color: white;'>Welcome to AI Chatbot</h2>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center; font-size: 18px;'>💬 Ask me anything!</p>", unsafe_allow_html=True)
 
 with col3:
-    st.write(" ")  # Empty space
+    st.write("")  # Empty space for alignment
 
 
 # Ensure at least one conversation exists before accessing it
