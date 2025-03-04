@@ -152,6 +152,7 @@ if user_input:
     with st.chat_message("assistant"):
         msg_placeholder = st.empty()
 
+
     # **Generate AI Response**
     with st.spinner("Processing..."):
         try:
@@ -162,8 +163,7 @@ if user_input:
         except Exception as e:
             bot_response = f"⚠️ Error: {str(e)}"
 
-    # **Update UI with Final Response**
-    st.session_state.conversations[st.session_state.current_chat].append({"role": "assistant", "content": bot_response})
-    msg_placeholder.markdown(bot_response)  # Replace "Thinking..." with real response
+    
+    
     
     st.rerun()
