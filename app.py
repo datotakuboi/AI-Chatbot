@@ -5,6 +5,7 @@ import google.generativeai as genai
 import time
 from streamlit_option_menu import option_menu
 import PyPDF2
+import io
 
 # Set page config
 st.set_page_config(page_title="AI Chatbot", page_icon="🤖", layout="wide")
@@ -32,7 +33,7 @@ def initialize_firebase():
 
 initialize_firebase()
 
-# ✅ **Sidebar Navigation**
+# ✅ **Sidebar Navigation & PDF Upload**
 if "user" not in st.session_state:
     with st.sidebar:
         selected = option_menu(
@@ -42,6 +43,26 @@ if "user" not in st.session_state:
             menu_icon="list",
             default_index=0,
         )
+
+# **PDF Upload Handling**
+def extract_text_from_pdf(pdf_file):
+    """Extract text from an uploaded PDF file"""
+    pdf_text = ""
+    pdf_reader = PyPDF2.PdfReader(pdf_file)
+    for page in pdf_reader.pages:
+        pdf_text += page.extract_text() + "\n"
+    return pdf_text.strip()
+
+uploaded_pdf = None
+pdf_text = ""
+
+with st.sidebar:
+    st.markdown("## 📂 Upload PDF for Context")
+    uploaded_pdf = st.file_uploader("Upload a PDF", type=["pdf"])
+
+    if uploaded_pdf:
+        pdf_text = extract_text_from_pdf(uploaded_pdf)
+        st.success("📄 PDF uploaded and processed!")
 
 # ✅ **Handle Authentication**
 if "user" not in st.session_state:
@@ -95,20 +116,8 @@ if "user" not in st.session_state:
 with st.sidebar:
     st.write(f"✅ Logged in as: **{st.session_state['user']['email']}**")
 
-    # **PDF Upload - Only Visible After Login**
-    st.markdown("## 📂 Upload PDF for Context")
-    uploaded_pdf = st.file_uploader("Upload a PDF", type=["pdf"])
-
-    # **Extract text from PDF**
-    pdf_text = ""
-    if uploaded_pdf:
-        try:
-            pdf_reader = PyPDF2.PdfReader(uploaded_pdf)
-            for page in pdf_reader.pages:
-                pdf_text += page.extract_text() + "\n"
-            st.success("📄 PDF uploaded and processed!")
-        except Exception as e:
-            st.error(f"❌ Error reading PDF: {str(e)}")
+    if "conversations" not in st.session_state:
+        st.session_state.conversations = [[]]
 
     # **New Chat Button**
     if st.button("➕ New Chat"):
