@@ -5,9 +5,8 @@ import google.generativeai as genai
 import time
 from streamlit_option_menu import option_menu
 import PyPDF2
-import io
 
-# Set page config
+# ✅ **Set page configuration**
 st.set_page_config(page_title="AI Chatbot", page_icon="🤖", layout="wide")
 
 # ✅ **Load API Key from Streamlit Secrets**
@@ -143,29 +142,29 @@ with st.sidebar:
         time.sleep(1)
         st.rerun()
 
-# ✅ **Centering AI Chatbot Logo, Title, and Welcome Text**
-col1, col2, col3 = st.columns([3, 4, 3])  # Create three columns to center content
+# ✅ **Centering AI Chatbot Title and Welcome Text**
+col1, col2, col3 = st.columns([3, 4, 3])  
 
 with col1:
-    st.write("")  # Empty space for alignment
+    st.write(" ")  
 
 with col2:
-    # ✅ Ensure the logo is properly centered
+    # Centered logo
     st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
-    st.image("citlogo.png", width=250)  # Adjust width if necessary
+    st.image("citlogo.png", width=250)  
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # ✅ Ensure the welcome text is properly centered
+    # Centered title and subtitle
     st.markdown("<h2 style='text-align: center; color: white;'>Welcome to AI Chatbot</h2>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center; font-size: 18px;'>💬 Ask me anything!</p>", unsafe_allow_html=True)
 
 with col3:
-    st.write("")  # Empty space for alignment
+    st.write(" ")  
 
-
+# ✅ **Chatbot Interface**
 # Ensure at least one conversation exists before accessing it
 if "conversations" not in st.session_state:
-    st.session_state.conversations = [[]]  # Initialize with an empty conversation list
+    st.session_state.conversations = [[]]  
 
 if "current_chat" not in st.session_state:
     st.session_state.current_chat = 0
@@ -194,15 +193,13 @@ if user_input:
             if pdf_text:
                 prompt = f"Based on this document:\n\n{pdf_text}\n\nAnswer this question: {user_input}"
 
-            response = model.generate_content(
-                prompt, generation_config={"max_output_tokens": 200}
-            )
+            response = model.generate_content(prompt, generation_config={"max_output_tokens": 200})
             bot_response = response.text if response and response.text else "I'm not sure how to respond."
         except Exception as e:
             bot_response = f"⚠️ Error: {str(e)}"
 
     # **Update UI with Final Response**
     st.session_state.conversations[st.session_state.current_chat].append({"role": "assistant", "content": bot_response})
-    msg_placeholder.markdown(bot_response)  # Replace "Thinking..." with real response
-    
+    msg_placeholder.markdown(bot_response)  
+
     st.rerun()
