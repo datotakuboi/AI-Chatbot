@@ -23,8 +23,8 @@ model = genai.GenerativeModel("gemini-2.0-flash")
 def initialize_firebase():
     if not firebase_admin._apps:
         try:
-            cred_dict = json.loadst(st.secrets["service_account"])
-            cred = credentials.Certificate(cred_dict)
+            service_account_json = json.loads(st.secrets["service_account"]["json"])
+            cred = credentials.Certificate(service_account_json)
             firebase_admin.initialize_app(cred)
         except Exception as e:
             st.error(f"🔥 Failed to initialize Firebase: {e}")
