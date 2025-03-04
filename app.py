@@ -94,8 +94,6 @@ if "user" not in st.session_state:
 
 # ✅ **If Logged In, Show Chatbot**
 with st.sidebar:
-    st.write(f"✅ Logged in as: **{st.session_state['user']['email']}**")
-
     # ✅ **PDF Upload (Appears Only After Login)**
     st.markdown("## 📂 Upload PDF for Context")
     uploaded_pdf = st.file_uploader("Upload a PDF", type=["pdf"])
@@ -110,10 +108,11 @@ with st.sidebar:
         pdf_text = extract_text_from_pdf(uploaded_pdf)
         st.success("📄 PDF uploaded and processed!")
 
+    # ✅ **New Chat & Chat History**
+    st.markdown("## 💬 Chat")
     if "conversations" not in st.session_state:
         st.session_state.conversations = [[]]
 
-    # **New Chat Button**
     if st.button("➕ New Chat"):
         st.session_state.conversations.append([])
         st.session_state.current_chat = len(st.session_state.conversations) - 1
@@ -133,6 +132,10 @@ with st.sidebar:
     if st.button("🗑 Clear All Chats"):
         st.session_state.conversations = []
         st.rerun()
+
+    # ✅ **Move "Logged in as" & Logout to the Bottom**
+    st.markdown("---")  # Separator for clarity
+    st.write(f"✅ Logged in as: **{st.session_state['user']['email']}**")
 
     if st.button("🚪 Logout"):
         st.session_state.pop("user", None)
