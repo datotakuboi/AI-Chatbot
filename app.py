@@ -151,7 +151,6 @@ if user_input:
     # **Loading Indicator**
     with st.chat_message("assistant"):
         msg_placeholder = st.empty()
-        msg_placeholder.markdown("🤖 **Thinking...**")
 
     # **Generate AI Response**
     with st.spinner("Processing..."):
