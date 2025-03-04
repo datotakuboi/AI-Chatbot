@@ -143,9 +143,14 @@ with st.sidebar:
         time.sleep(1)
         st.rerun()
 
-# ✅ **Chatbot Interface**
-st.title("🤖 AI Chatbot")
-st.write("💬 Ask me anything!")
+# ✅ **Chatbot Interface (Centered Title and Text)**
+st.markdown(
+    """
+    <h1 style="text-align: center;">🤖 AI Chatbot</h1>
+    <p style="text-align: center; font-size: 18px;">💬 Ask me anything!</p>
+    """,
+    unsafe_allow_html=True
+)
 
 # Ensure at least one conversation exists before accessing it
 if "conversations" not in st.session_state:
