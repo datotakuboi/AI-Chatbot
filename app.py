@@ -17,9 +17,13 @@ genai.configure(api_key=API_KEY)
 model = genai.GenerativeModel("gemini-2.0-flash")
 
 # Initialize Firebase
-if not firebase_admin._apps:
-    cred = credentials.Certificate(st.secrets["firebase_credentials"])
-    firebase_admin.initialize_app(cred)
+def initialize_firebase():
+    if not firebase_admin._apps:
+        try:
+            cred = credentials.Certificate(dict(st.secrets["service_account"]))
+            firebase_admin.initialize_app(cred)
+        except Exception as e:
+            st.error(f"Failed to initialize Firebase: {e}")
 
 # Set page config
 st.set_page_config(page_title="AI Chatbot", page_icon="🤖", layout="wide")
