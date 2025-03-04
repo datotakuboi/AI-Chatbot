@@ -6,6 +6,7 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 import time
 from streamlit_option_menu import option_menu
+import json
 
 # Set page config
 st.set_page_config(page_title="AI Chatbot", page_icon="🤖", layout="wide")
@@ -22,7 +23,8 @@ model = genai.GenerativeModel("gemini-2.0-flash")
 def initialize_firebase():
     if not firebase_admin._apps:
         try:
-            cred = credentials.Certificate(dict(st.secrets["service_account"]))
+            cred_dict = json.loadst(st.secrets["service_account"])
+            cred = credentials.Certificate(cred_dict)
             firebase_admin.initialize_app(cred)
         except Exception as e:
             st.error(f"🔥 Failed to initialize Firebase: {e}")
