@@ -24,6 +24,8 @@ def initialize_firebase():
             firebase_admin.initialize_app(cred)
         except Exception as e:
             st.error(f"Failed to initialize Firebase: {e}")
+        
+initialize_firebase()
 
 # Set page config
 st.set_page_config(page_title="AI Chatbot", page_icon="🤖", layout="wide")
