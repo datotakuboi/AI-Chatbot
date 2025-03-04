@@ -143,30 +143,30 @@ with st.sidebar:
         time.sleep(1)
         st.rerun()
 
-# ✅ **Centering Chatbot Title and Welcome Text**
+# ✅ **Centering AI Chatbot Title and Welcome Text**
+col1, col2, col3 = st.columns([3, 4, 3])  # Creates three columns for alignment
+
+with col1:
+    st.write(" ")  # Empty space to center the content
+
+with col2:
+    st.image("citlogo.png", width=250)  # Ensure the logo is centered
+
+with col3:
+    st.write(" ")  # Empty space for symmetry
+
+# Another row for centering the chatbot title and text
 col1, col2, col3 = st.columns([3, 4, 3])
 
 with col1:
-    st.write(" ")
+    st.write(" ")  # Empty space
 
 with col2:
-    st.image("citlogo.png", width=500)  # Replace with your actual logo
+    st.markdown("<h2 style='text-align: center; color: blue;'>Welcome to AI Chatbot</h2>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; font-size: 18px;'>💬 Ask me anything!</p>", unsafe_allow_html=True)
 
 with col3:
-    st.write(" ")
-
-# Centering AI Chatbot Title
-col1, col2, col3 = st.columns([3, 4, 3])
-
-with col1:
-    st.write(" ")
-
-with col2:
-    st.markdown('## Welcome to :blue[AI Chatbot]', unsafe_allow_html=True)
-    st.write("💬 Ask me anything!", unsafe_allow_html=True)
-
-with col3:
-    st.write(" ")
+    st.write(" ")  # Empty space
 
 
 # Ensure at least one conversation exists before accessing it
