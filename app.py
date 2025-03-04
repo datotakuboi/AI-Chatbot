@@ -162,7 +162,7 @@ with col1:
     st.write(" ")  # Empty space
 
 with col2:
-    st.markdown("## 🤖 Welcome to :blue[AI Chatbot]", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align: center; color: white;'>Welcome to AI Chatbot</h2>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center; font-size: 18px;'>💬 Ask me anything!</p>", unsafe_allow_html=True)
 
 with col3:
