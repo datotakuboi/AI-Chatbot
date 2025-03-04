@@ -1,9 +1,7 @@
 import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, auth
-import os
 import google.generativeai as genai
-from dotenv import load_dotenv
 import time
 from streamlit_option_menu import option_menu
 import json
@@ -11,15 +9,18 @@ import json
 # Set page config
 st.set_page_config(page_title="AI Chatbot", page_icon="🤖", layout="wide")
 
-# Load environment variables
-load_dotenv()
-API_KEY = st.secrets("GEMINI_API_KEY")
+# ✅ Read API Key from Streamlit secrets
+if "GEMINI_API_KEY" not in st.secrets:
+    st.error("❌ Missing Gemini API Key in Streamlit secrets!")
+    st.stop()
 
-# Initialize Gemini AI
+API_KEY = st.secrets["GEMINI_API_KEY"]
+
+# ✅ Initialize Gemini AI
 genai.configure(api_key=API_KEY)
 model = genai.GenerativeModel("gemini-2.0-pro")
 
-# Initialize Firebase
+# ✅ Initialize Firebase
 def initialize_firebase():
     if not firebase_admin._apps:
         try:
@@ -139,7 +140,6 @@ if "current_chat" not in st.session_state:
 for message in st.session_state.conversations[st.session_state.current_chat]:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
-
 
 user_input = st.chat_input("Type your message...")
 
