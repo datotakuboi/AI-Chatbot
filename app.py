@@ -25,10 +25,9 @@ def initialize_firebase():
             cred = credentials.Certificate(dict(st.secrets["service_account"]))
             firebase_admin.initialize_app(cred)
         except Exception as e:
-            st.error(f"Failed to initialize Firebase: {e}")
-        
-initialize_firebase()
+            st.error(f"🔥 Failed to initialize Firebase: {e}")
 
+initialize_firebase()
 
 # Sidebar navigation menu (only if the user is NOT logged in)
 if "user" not in st.session_state:
@@ -46,18 +45,20 @@ if "user" not in st.session_state:
     if selected == "Login":
         st.title("🔑 Login")
         with st.form("Login Form", clear_on_submit=False):
-            username = st.text_input("Username", placeholder="Your unique username")
-            password = st.text_input("Password", placeholder="Your password", type="password")
+            email = st.text_input("Email", placeholder="Enter your email")
+            password = st.text_input("Password", placeholder="Enter your password", type="password")
             login_submit = st.form_submit_button("Login")
             if login_submit:
                 try:
-                    user = auth.get_user_by_email(username)
-                    st.session_state["user"] = {"email": username, "uid": user.uid}
-                    st.success(f"✅ Logged in as {username}")
+                    user = auth.get_user_by_email(email)
+                    st.session_state["user"] = {"email": email, "uid": user.uid}
+                    st.success(f"✅ Logged in as {email}")
                     time.sleep(1)
                     st.rerun()
+                except firebase_admin.auth.UserNotFoundError:
+                    st.error("❌ No user found. Please register first!")
                 except Exception as e:
-                    st.error("❌ Invalid username or password!")
+                    st.error(f"❌ Error: {str(e)}")
     
     elif selected == "Create Account":
         st.title("🆕 Create Account")
@@ -79,9 +80,15 @@ if "user" not in st.session_state:
             reset_submit = st.form_submit_button("Reset Password")
             if reset_submit:
                 try:
-                    # Send the password reset email
-                    auth.send_password_reset_email(email)
+                    # Generate a password reset link and instruct the user to check their email
+                    reset_link = auth.generate_password_reset_link(email)
                     st.success(f"✅ Password reset link sent to **{email}**. Check your inbox!")
+
+                    # Display the reset link (for debugging or manual copy-paste)
+                    st.write(f"[Click here to reset your password]({reset_link})")
+
+                except firebase_admin.auth.UserNotFoundError:
+                    st.error("❌ No user found with this email.")
                 except Exception as e:
                     st.error(f"❌ Error: {str(e)}")
     st.stop()
@@ -89,7 +96,7 @@ if "user" not in st.session_state:
 # If logged in, show chatbot and chat history in the sidebar
 with st.sidebar:
     st.write(f"✅ Logged in as: **{st.session_state['user']['email']}**")
-    
+
     if "conversations" not in st.session_state:
         st.session_state.conversations = []
 
