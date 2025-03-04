@@ -146,7 +146,7 @@ with st.sidebar:
 st.markdown(
     """
     <div style="display: flex; justify-content: center; align-items: center;">
-        <img src="https://raw.githubusercontent.com/your-repository-path/citlogo.png" width="250">
+        <img src="citlogo.png" width="250">
     </div>
     """, unsafe_allow_html=True
 )
