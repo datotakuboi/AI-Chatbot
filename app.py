@@ -4,23 +4,22 @@ from firebase_admin import credentials, auth
 import google.generativeai as genai
 import time
 from streamlit_option_menu import option_menu
-import json
 
 # Set page config
 st.set_page_config(page_title="AI Chatbot", page_icon="🤖", layout="wide")
 
-# ✅ Read API Key from Streamlit secrets
-if "GEMINI_API_KEY" not in st.secrets:
+# ✅ **Load API Key from Streamlit Secrets**
+try:
+    API_KEY = st.secrets["api_keys"]["GEMINI_API_KEY"]
+except KeyError:
     st.error("❌ Missing Gemini API Key in Streamlit secrets!")
     st.stop()
 
-API_KEY = st.secrets["api_keys"]["GEMINI_API_KEY"]
-
-# ✅ Initialize Gemini AI
+# ✅ **Initialize Gemini AI**
 genai.configure(api_key=API_KEY)
 model = genai.GenerativeModel("gemini-2.0-pro")
 
-# ✅ Initialize Firebase
+# ✅ **Initialize Firebase**
 def initialize_firebase():
     if not firebase_admin._apps:
         try:
@@ -32,7 +31,7 @@ def initialize_firebase():
 
 initialize_firebase()
 
-# Sidebar navigation menu (only if the user is NOT logged in)
+# ✅ **Sidebar Navigation**
 if "user" not in st.session_state:
     with st.sidebar:
         selected = option_menu(
@@ -43,7 +42,7 @@ if "user" not in st.session_state:
             default_index=0,
         )
 
-# Handle authentication
+# ✅ **Handle Authentication**
 if "user" not in st.session_state:
     if selected == "Login":
         st.title("🔑 Login")
@@ -91,20 +90,20 @@ if "user" not in st.session_state:
                     st.error(f"❌ Error: {str(e)}")
     st.stop()
 
-# If logged in, show chatbot and chat history in the sidebar
+# ✅ **If Logged In, Show Chatbot**
 with st.sidebar:
     st.write(f"✅ Logged in as: **{st.session_state['user']['email']}**")
 
     if "conversations" not in st.session_state:
         st.session_state.conversations = [[]]
 
-    # New Chat Button
+    # **New Chat Button**
     if st.button("➕ New Chat"):
         st.session_state.conversations.append([])
         st.session_state.current_chat = len(st.session_state.conversations) - 1
         st.rerun()
 
-    # Display chat history
+    # **Display Chat History**
     st.markdown("### Chat History")
     for i, conv in enumerate(st.session_state.conversations):
         with st.expander(f"Conversation {i+1}"):
@@ -125,7 +124,7 @@ with st.sidebar:
         time.sleep(1)
         st.rerun()
 
-# **Chatbot Interface**
+# ✅ **Chatbot Interface**
 st.title("🤖 AI Chatbot")
 st.write("💬 Ask me anything!")
 
@@ -136,24 +135,25 @@ if "conversations" not in st.session_state:
 if "current_chat" not in st.session_state:
     st.session_state.current_chat = 0
 
-# Display chat history in the main area
+# **Display Chat History**
 for message in st.session_state.conversations[st.session_state.current_chat]:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
+# **User Input**
 user_input = st.chat_input("Type your message...")
 
 if user_input:
     st.session_state.conversations[st.session_state.current_chat].append({"role": "user", "content": user_input})
     with st.chat_message("user"):
         st.markdown(user_input)
-    
-    # Loading indicator (real-time animation)
+
+    # **Loading Indicator**
     with st.chat_message("assistant"):
         msg_placeholder = st.empty()
         msg_placeholder.markdown("🤖 **Thinking...**")
 
-    # Generate response with reduced token size for faster replies
+    # **Generate AI Response**
     with st.spinner("Processing..."):
         try:
             response = model.generate_content(
@@ -163,9 +163,8 @@ if user_input:
         except Exception as e:
             bot_response = f"⚠️ Error: {str(e)}"
 
-    # Update UI with final response
+    # **Update UI with Final Response**
     st.session_state.conversations[st.session_state.current_chat].append({"role": "assistant", "content": bot_response})
-    
     msg_placeholder.markdown(bot_response)  # Replace "Thinking..." with real response
     
     st.rerun()
