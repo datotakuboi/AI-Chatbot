@@ -17,7 +17,7 @@ except KeyError:
 
 # ✅ **Initialize Gemini AI**
 genai.configure(api_key=API_KEY)
-model = genai.GenerativeModel("gemini-2.0-pro")
+model = genai.GenerativeModel("gemini-2.0-flash")
 
 # ✅ **Initialize Firebase**
 def initialize_firebase():
