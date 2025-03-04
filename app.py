@@ -143,23 +143,18 @@ with st.sidebar:
         st.rerun()
 
 # ✅ **Centering AI Chatbot Title and Welcome Text**
-col1, col2, col3 = st.columns([3, 4, 3])  
+st.markdown(
+    """
+    <div style="display: flex; justify-content: center; align-items: center;">
+        <img src="https://raw.githubusercontent.com/your-repository-path/citlogo.png" width="250">
+    </div>
+    """, unsafe_allow_html=True
+)
 
-with col1:
-    st.write(" ")  
-
-with col2:
-    # Centered logo
-    st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
-    st.image("citlogo.png", width=250)  
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    # Centered title and subtitle
-    st.markdown("<h2 style='text-align: center; color: white;'>Welcome to AI Chatbot</h2>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; font-size: 18px;'>💬 Ask me anything!</p>", unsafe_allow_html=True)
-
-with col3:
-    st.write(" ")  
+# ✅ **Centered Title and Subtitle**
+st.markdown("<h2 style='text-align: center; color: white;'>Welcome to AI Chatbot</h2>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; font-size: 18px;'>💬 Ask me anything!</p>", unsafe_allow_html=True)
+ 
 
 # ✅ **Chatbot Interface**
 # Ensure at least one conversation exists before accessing it
