@@ -18,7 +18,7 @@ model = genai.GenerativeModel("gemini-2.0-flash")
 
 # Initialize Firebase
 if not firebase_admin._apps:
-    cred = credentials.Certificate("ai_chatbotfirebase_credentials.json")
+    cred = credentials.Certificate(st.secrets["firebase_credentials"])
     firebase_admin.initialize_app(cred)
 
 # Set page config
