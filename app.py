@@ -112,10 +112,11 @@ with st.sidebar:
     if "conversations" not in st.session_state:
         st.session_state.conversations = [[]]
 
-    if st.button("➕ New Chat"):
-        st.session_state.conversations.append([])
-        st.session_state.current_chat = len(st.session_state.conversations) - 1
+    if st.button("🗑 Clear All Chats"):
+        st.session_state.conversations = [[]]  # Ensure at least one empty conversation exists
+        st.session_state.current_chat = 0  # Reset index to avoid out-of-range errors
         st.rerun()
+
 
     # **Display Chat History**
     st.markdown("### Chat History")
