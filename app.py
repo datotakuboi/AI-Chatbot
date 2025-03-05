@@ -152,19 +152,16 @@ with st.sidebar:
         time.sleep(1)
         st.rerun()
 
-# ✅ **Welcome Message & Logo in Chat Interface**
-col1, col2, col3 = st.columns([3, 4, 3])
-
-with col1:
-    st.write(' ')
-
-with col2:
-    st.image("citlogo.png", width=250)  # Logo now appears in the main chat interface
-
-with col3:
-    st.write(' ')
-
-st.markdown("<h2 style='text-align: center;'>Welcome to CIT Chatbot 🤖</h2>", unsafe_allow_html=True)
+# ✅ **Welcome Message with Centered Image**
+st.markdown(
+    """
+    <div style="text-align: center;">
+        <img src="citlogo.png" alt="CIT Logo" style="width: 200px;">
+        <h2>Welcome to CIT Chatbot 🤖</h2>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 
 # ✅ **Chatbot Interface**
