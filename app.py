@@ -224,13 +224,11 @@ display_chat_history()
 user_input = st.chat_input("Ask anything...")
 
 if user_input:
+    # Append user message to session state
     st.session_state.conversations[st.session_state.current_chat].append({"role": "user", "content": user_input})
-    with st.chat_message("user"):
-        st.markdown(user_input)
 
-    # **Loading Indicator**
-    with st.chat_message("assistant"):
-        msg_placeholder = st.empty()
+    # Refresh chat history
+    display_chat_history()
 
     # **Generate AI Response with PDF Context**
     with st.spinner("Processing..."):
@@ -254,6 +252,6 @@ if user_input:
 
     # **Update UI with Final Response**
     st.session_state.conversations[st.session_state.current_chat].append({"role": "assistant", "content": bot_response})
-    msg_placeholder.markdown(bot_response)  
+    display_chat_history()
 
     st.rerun()
