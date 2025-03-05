@@ -144,6 +144,10 @@ with st.sidebar:
         time.sleep(1)
         st.rerun()
 
+# ✅ **Welcome Message**
+st.markdown("<h2 style='text-align: center;'>Welcome to AI Chatbot 🤖</h2>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; font-size: 18px;'>💬 Ask me anything, and I'll do my best to help!</p>", unsafe_allow_html=True)
+
 # ✅ **Chatbot Interface**
 if "conversations" not in st.session_state:
     st.session_state.conversations = [[]]  
