@@ -152,16 +152,12 @@ with st.sidebar:
         time.sleep(1)
         st.rerun()
 
-# ✅ **Welcome Message with Centered Image**
-st.markdown(
-    """
-    <div style="text-align: center;">
-        st.image("https://raw.githubusercontent.com/datotakuboi/AI-Chatbot/main/citlogo.png", width=200)
-        <h2>Welcome to CIT Chatbot 🤖</h2>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+# ✅ Display the image and welcome message properly
+st.markdown("<h2 style='text-align: center;'>Welcome to CIT Chatbot 🤖</h2>", unsafe_allow_html=True)
+
+# ✅ Display the image separately using st.image()
+st.image("https://raw.githubusercontent.com/datotakuboi/AI-Chatbot/main/citlogo.png", width=200)
+
 
 
 # ✅ **Chatbot Interface**
