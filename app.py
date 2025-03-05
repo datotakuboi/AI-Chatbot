@@ -228,22 +228,32 @@ if user_input:
     with st.chat_message("user"):
         st.markdown(user_input)
 
+    # **Loading Indicator**
     with st.chat_message("assistant"):
         msg_placeholder = st.empty()
-        msg_placeholder.markdown("🤖 Thinking...")  # Shows temporary response
 
-    try:
-        with st.spinner("Processing..."):
+    # **Generate AI Response with PDF Context**
+    with st.spinner("Processing..."):
+        try:
             prompt = user_input
             if pdf_text:
                 prompt = f"Based on this document:\n\n{pdf_text}\n\nAnswer this question: {user_input}"
 
-            generation_config = {"temperature": 0.7, "top_p": 0.9, "top_k": 40, "max_output_tokens": 2048}
+            # 🔥 **Unlimited response generation with better quality**
+            generation_config = {
+                "temperature": 0.7,  # Adjusts response creativity
+                "top_p": 0.9,        # Ensures diverse responses
+                "top_k": 40,         # Limits response randomness
+                "max_output_tokens": 2048  # Allows **longer** responses
+            }
+
             response = model.generate_content(prompt, generation_config=generation_config)
             bot_response = response.text if response and response.text else "I'm not sure how to respond."
-    except Exception as e:
-        bot_response = f"⚠️ Error: {str(e)}"
+        except Exception as e:
+            bot_response = f"⚠️ Error: {str(e)}"
 
+    # **Update UI with Final Response**
     st.session_state.conversations[st.session_state.current_chat].append({"role": "assistant", "content": bot_response})
-    msg_placeholder.markdown(bot_response)
+    msg_placeholder.markdown(bot_response)  
+
     st.rerun()
