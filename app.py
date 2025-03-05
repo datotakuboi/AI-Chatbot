@@ -182,14 +182,14 @@ def display_chat_history():
                 font-size: 16px;
             }
             .user-bubble {
-                background-color: #0078FF;
+                background-color: #2E2E2E;
                 color: white;
                 align-self: flex-end;
                 text-align: right;
                 margin-left: auto;
             }
             .bot-bubble {
-                background-color: #F0F0F0;
+                background-color: #2E2E2E;
                 color: black;
                 align-self: flex-start;
                 text-align: left;
