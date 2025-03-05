@@ -45,50 +45,54 @@ if "user" not in st.session_state:
 
 # ✅ **Handle Authentication**
 if "user" not in st.session_state:
-    if selected == "Login":
-        st.title("🔑 Login")
-        with st.form("Login Form", clear_on_submit=False):
-            email = st.text_input("Email", placeholder="Enter your email")
-            password = st.text_input("Password", placeholder="Enter your password", type="password")
-            login_submit = st.form_submit_button("Login")
-            if login_submit:
-                try:
-                    user = auth.get_user_by_email(email)
-                    st.session_state["user"] = {"email": email, "uid": user.uid}
-                    st.success(f"✅ Logged in as {email}")
-                    time.sleep(1)
-                    st.rerun()
-                except firebase_admin.auth.UserNotFoundError:
-                    st.error("❌ No user found. Please register first!")
-                except Exception as e:
-                    st.error(f"❌ Error: {str(e)}")
+    col1, col2, col3 = st.columns([1, 2, 1])  # Centering the forms
 
-    elif selected == "Create Account":
-        st.title("🆕 Create Account")
-        with st.form("Register Form", clear_on_submit=False):
-            email = st.text_input("Email", placeholder="Enter your email")
-            password = st.text_input("Password", type="password", placeholder="Create a strong password")
-            register_submit = st.form_submit_button("Sign Up")
-            if register_submit:
-                try:
-                    auth.create_user(email=email, password=password)
-                    st.success("✅ Registration successful! Please log in.")
-                except Exception as e:
-                    st.error(f"❌ Registration failed: {str(e)}")
+    with col2:  # Form appears in the middle column
+        if selected == "Login":
+            st.title("🔑 Login")
+            with st.form("Login Form", clear_on_submit=False):
+                email = st.text_input("Email", placeholder="Enter your email")
+                password = st.text_input("Password", placeholder="Enter your password", type="password")
+                login_submit = st.form_submit_button("Login")
+                if login_submit:
+                    try:
+                        user = auth.get_user_by_email(email)
+                        st.session_state["user"] = {"email": email, "uid": user.uid}
+                        st.success(f"✅ Logged in as {email}")
+                        time.sleep(1)
+                        st.rerun()
+                    except firebase_admin.auth.UserNotFoundError:
+                        st.error("❌ No user found. Please register first!")
+                    except Exception as e:
+                        st.error(f"❌ Error: {str(e)}")
 
-    elif selected == "Forgot Password?":
-        st.title("🔄 Forgot Password?")
-        with st.form("Forgot Password Form", clear_on_submit=False):
-            email = st.text_input("Email", placeholder="Enter your registered email")
-            reset_submit = st.form_submit_button("Reset Password")
-            if reset_submit:
-                try:
-                    reset_link = auth.generate_password_reset_link(email)
-                    st.success(f"✅ Password reset email sent to **{email}**. Check your inbox!")
-                except firebase_admin.auth.UserNotFoundError:
-                    st.error("❌ No user found with this email.")
-                except Exception as e:
-                    st.error(f"❌ Error: {str(e)}")
+        elif selected == "Create Account":
+            st.title("🆕 Create Account")
+            with st.form("Register Form", clear_on_submit=False):
+                email = st.text_input("Email", placeholder="Enter your email")
+                password = st.text_input("Password", type="password", placeholder="Create a strong password")
+                register_submit = st.form_submit_button("Sign Up")
+                if register_submit:
+                    try:
+                        auth.create_user(email=email, password=password)
+                        st.success("✅ Registration successful! Please log in.")
+                    except Exception as e:
+                        st.error(f"❌ Registration failed: {str(e)}")
+
+        elif selected == "Forgot Password?":
+            st.title("🔄 Forgot Password?")
+            with st.form("Forgot Password Form", clear_on_submit=False):
+                email = st.text_input("Email", placeholder="Enter your registered email")
+                reset_submit = st.form_submit_button("Reset Password")
+                if reset_submit:
+                    try:
+                        reset_link = auth.generate_password_reset_link(email)
+                        st.success(f"✅ Password reset email sent to **{email}**. Check your inbox!")
+                    except firebase_admin.auth.UserNotFoundError:
+                        st.error("❌ No user found with this email.")
+                    except Exception as e:
+                        st.error(f"❌ Error: {str(e)}")
+
     st.stop()
 
 # ✅ **If Logged In, Show Chatbot**
