@@ -277,25 +277,35 @@ if user_input:
     if pdf_text:
         prompt = f"Based on the following extracted information from uploaded PDFs:\n\n{pdf_text}\n\n{prompt}"
 
-    # ✅ Display "Processing..." inside bot chat bubble
-        st.markdown(f"""
-            <div class="chat-container">
-                <div class="chat-bubble bot-bubble">🤖 Processing...</div>
-            </div>
-        """, unsafe_allow_html=True)
+    # ✅ Display "Processing..." inside bot bubble before generating response
+st.markdown(f"""
+    <div class="chat-container">
+        <div class="chat-bubble bot-bubble">🤖 Processing...</div>
+    </div>
+""", unsafe_allow_html=True)
 
-        try:
-            response = model.generate_content(prompt, generation_config={
-                "temperature": 0.7,  # Adjusts response creativity
-                "top_p": 0.9,        # Ensures diverse responses
-                "top_k": 40,         # Limits response randomness
-                "max_output_tokens": 2048  # Allows **longer** responses
-            })
-            bot_response = response.text if response and response.text else "I'm not sure how to respond."
-        except Exception as e:
-            bot_response = f"⚠️ Error: {str(e)}"
+# **Ensure `bot_response` has a default value**
+bot_response = "⚠️ Unable to generate a response."
 
-    # **Update UI with Final Response**
-    st.session_state.conversations[st.session_state.current_chat].append({"role": "assistant", "content": bot_response})
-    display_chat_history()
-    st.rerun()
+# **Generate AI Response**
+try:
+    response = model.generate_content(prompt, generation_config={
+        "temperature": 0.7,  # Adjusts response creativity
+        "top_p": 0.9,        # Ensures diverse responses
+        "top_k": 40,         # Limits response randomness
+        "max_output_tokens": 2048  # Allows **longer** responses
+    })
+    
+    # **Check if response is valid**
+    if response and response.text:
+        bot_response = response.text
+    else:
+        bot_response = "⚠️ Sorry, I couldn't generate a response."
+
+except Exception as e:
+    bot_response = f"⚠️ Error: {str(e)}"
+
+# ✅ **Update UI with Final Response**
+st.session_state.conversations[st.session_state.current_chat].append({"role": "assistant", "content": bot_response})
+display_chat_history()
+st.rerun()
