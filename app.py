@@ -145,9 +145,6 @@ with st.sidebar:
 
     # ✅ **Move "Logged in as" & Logout to the Bottom**
     st.markdown("---")  # Separator for clarity
-
-    bottom_placeholder = st.empty()
-with bottom_placeholder.container():
     st.write(f"✅ Logged in as: **{st.session_state['user']['email']}**")
     if st.button("Logout"):
         st.session_state.pop("user", None)
