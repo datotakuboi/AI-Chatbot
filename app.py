@@ -9,62 +9,6 @@ import PyPDF2
 # ✅ **Set page configuration**
 st.set_page_config(page_title="AI Chatbot", page_icon="🤖", layout="wide")
 
-# ✅ **Custom CSS for Chat Styling**
-st.markdown(
-    """
-    <style>
-        .chat-container {
-            max-width: 700px;
-            margin: auto;
-        }
-        .chat-message {
-            padding: 12px;
-            border-radius: 12px;
-            margin: 8px 0;
-            max-width: 75%;
-            word-wrap: break-word;
-            font-size: 16px;
-        }
-        .user-message {
-            background-color: #0078D4;
-            color: white;
-            text-align: right;
-            margin-left: auto;
-            padding: 10px 15px;
-            border-top-right-radius: 0px;
-        }
-        .bot-message {
-            background-color: #f1f1f1;
-            color: black;
-            text-align: left;
-            padding: 10px 15px;
-            border-top-left-radius: 0px;
-        }
-        .user-message-container {
-            display: flex;
-            justify-content: flex-end;
-        }
-        .bot-message-container {
-            display: flex;
-            justify-content: flex-start;
-        }
-        .welcome-container {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .welcome-title {
-            font-size: 26px;
-            font-weight: bold;
-        }
-        .welcome-text {
-            font-size: 18px;
-            color: grey;
-        }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
 # ✅ **Load API Key from Streamlit Secrets**
 try:
     API_KEY = st.secrets["api_keys"]["GEMINI_API_KEY"]
@@ -88,11 +32,9 @@ def initialize_firebase():
 
 initialize_firebase()
 
-# ✅ **Check Authentication Status**
+# ✅ **Sidebar Navigation**
 if "user" not in st.session_state:
-    col1, col2, col3 = st.columns([1, 2, 1])  # Centering the forms
-
-    with col2:  # Form appears in the middle column
+    with st.sidebar:
         selected = option_menu(
             menu_title="Navigation",
             options=["Login", "Create Account", "Forgot Password?"],
@@ -101,6 +43,11 @@ if "user" not in st.session_state:
             default_index=0,
         )
 
+# ✅ **Handle Authentication**
+if "user" not in st.session_state:
+    col1, col2, col3 = st.columns([1, 2, 1])  # Centering the forms
+
+    with col2:  # Form appears in the middle column
         if selected == "Login":
             st.title("🔑 Login")
             with st.form("Login Form", clear_on_submit=False):
@@ -146,23 +93,53 @@ if "user" not in st.session_state:
                     except Exception as e:
                         st.error(f"❌ Error: {str(e)}")
 
-    st.stop()  # Prevents execution if user is not logged in
+    st.stop()
 
-# ✅ **Sidebar for Logged-in Users**
+# ✅ **If Logged In, Show Chatbot**
 with st.sidebar:
+    # ✅ **PDF Upload (Appears Only After Login)**
     st.markdown("## 📂 Upload PDF for Context")
     uploaded_pdf = st.file_uploader("Upload a PDF", type=["pdf"])
 
     pdf_text = ""
     if uploaded_pdf:
         def extract_text_from_pdf(pdf_file):
+            """Extract text from an uploaded PDF file"""
             pdf_reader = PyPDF2.PdfReader(pdf_file)
             return "\n".join([page.extract_text() for page in pdf_reader.pages if page.extract_text()]).strip()
 
         pdf_text = extract_text_from_pdf(uploaded_pdf)
         st.success("📄 PDF uploaded and processed!")
 
-    st.markdown("---")
+    # ✅ **New Chat & Chat History**
+    st.markdown("## 💬 Chat")
+    if "conversations" not in st.session_state:
+        st.session_state.conversations = [[]]
+
+    if st.button("➕ New Chat"):
+        st.session_state.conversations.append([])
+        st.session_state.current_chat = len(st.session_state.conversations) - 1
+        st.rerun()
+
+    # **Display Chat History**
+    st.markdown("### Chat History")
+    for i, conv in enumerate(st.session_state.conversations):
+        with st.expander(f"Conversation {i+1}"):
+            for msg in conv:
+                role = "🧑" if msg["role"] == "user" else "🤖"
+                st.write(f"{role} {msg['content']}")
+            if st.button("🗑 Delete", key=f"delete_{i}"):
+                del st.session_state.conversations[i]
+                st.rerun()
+
+    if st.button("🗑 Clear All Chats"):
+        st.session_state.conversations = [[]]  # Ensure at least one empty conversation exists
+        st.session_state.current_chat = 0  # Reset index to avoid out-of-range errors
+        st.rerun()
+
+
+    # ✅ **Move "Logged in as" & Logout to the Bottom**
+    st.markdown("---")  # Separator for clarity
     st.write(f"✅ Logged in as: **{st.session_state['user']['email']}**")
 
     if st.button("🚪 Logout"):
@@ -171,55 +148,56 @@ with st.sidebar:
         time.sleep(1)
         st.rerun()
 
-# ✅ **Chatbot Interface**
-st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
+# ✅ **Welcome Message**
+st.markdown("<h2 style='text-align: center;'>Welcome to AI Chatbot 🤖</h2>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; font-size: 18px;'>💬 Ask me anything, and I'll do my best to help!</p>", unsafe_allow_html=True)
 
+# ✅ **Chatbot Interface**
 if "conversations" not in st.session_state:
-    st.session_state.conversations = [[]]
+    st.session_state.conversations = [[]]  
 
 if "current_chat" not in st.session_state:
     st.session_state.current_chat = 0
 
 # **Display Chat History**
 for message in st.session_state.conversations[st.session_state.current_chat]:
-    role_class = "user-message" if message["role"] == "user" else "bot-message"
-    role_container = "user-message-container" if message["role"] == "user" else "bot-message-container"
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
 
-    st.markdown(
-        f"""
-        <div class="{role_container}">
-            <div class="chat-message {role_class}">{message['content']}</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-st.markdown("</div>", unsafe_allow_html=True)
-
-# ✅ **User Input & AI Response**
+# **User Input**
 user_input = st.chat_input("Type your message...")
 
 if user_input:
     st.session_state.conversations[st.session_state.current_chat].append({"role": "user", "content": user_input})
-
     with st.chat_message("user"):
         st.markdown(user_input)
 
+    # **Loading Indicator**
     with st.chat_message("assistant"):
         msg_placeholder = st.empty()
 
+    # **Generate AI Response with PDF Context**
     with st.spinner("Processing..."):
         try:
             prompt = user_input
             if pdf_text:
                 prompt = f"Based on this document:\n\n{pdf_text}\n\nAnswer this question: {user_input}"
 
-            response = model.generate_content(prompt)
+            # 🔥 **Unlimited response generation with better quality**
+            generation_config = {
+                "temperature": 0.7,  # Adjusts response creativity
+                "top_p": 0.9,        # Ensures diverse responses
+                "top_k": 40,         # Limits response randomness
+                "max_output_tokens": 2048  # Allows **longer** responses
+            }
+
+            response = model.generate_content(prompt, generation_config=generation_config)
             bot_response = response.text if response and response.text else "I'm not sure how to respond."
         except Exception as e:
             bot_response = f"⚠️ Error: {str(e)}"
 
+    # **Update UI with Final Response**
     st.session_state.conversations[st.session_state.current_chat].append({"role": "assistant", "content": bot_response})
-    msg_placeholder.markdown(bot_response)
+    msg_placeholder.markdown(bot_response)  
 
     st.rerun()
