@@ -163,51 +163,60 @@ if "current_chat" not in st.session_state:
 chat_history_placeholder = st.empty()
 
 def display_chat_history():
+    chat_history_placeholder.empty()  # Clear before rendering
+
     with chat_history_placeholder.container():
         st.markdown("""
             <style>
-            .user-message {
-                background-color: #DCF8C6;
-                color: #000000;
-                padding: 15px;
-                border-radius: 10px;
+            .chat-bubble {
+                padding: 12px;
+                border-radius: 15px;
                 margin-bottom: 5px;
-                width: fit-content;
                 max-width: 70%;
                 word-wrap: break-word;
                 font-size: 16px;
             }
-            .bot-message {
-                background-color: #F1F0F0;
-                color: #000000;
-                padding: 15px;
-                border-radius: 10px;
-                margin-bottom: 5px;
-                width: fit-content;
-                max-width: 70%;
-                word-wrap: break-word;
-                font-size: 16px;
+            .user-bubble {
+                background-color: #0078FF;
+                color: white;
+                align-self: flex-end;
+                text-align: right;
+                margin-left: auto;
             }
-            .user-message-container {
-                display: flex;
-                justify-content: flex-end;
+            .bot-bubble {
+                background-color: #F0F0F0;
+                color: black;
+                align-self: flex-start;
+                text-align: left;
+                margin-right: auto;
             }
-            .bot-message-container {
+            .chat-container {
                 display: flex;
-                justify-content: flex-start;
+                flex-direction: column;
+                margin-bottom: 10px;
             }
             </style>
         """, unsafe_allow_html=True)
-        for chat in st.session_state.chat_history:
-            st.markdown(f"""
-            <div class="user-message-container">
-                <div class="user-message">{chat['question']}</div>
-            </div>
-            <div class="bot-message-container">
-                <div class="bot-message">{chat['answer']['Answer']}</div>
-            </div>
-            """, unsafe_allow_html=True)
 
+        for msg in st.session_state.conversations[st.session_state.current_chat]:
+            role = msg["role"]
+            message_content = msg["content"]
+
+            if role == "user":
+                st.markdown(f"""
+                <div class="chat-container">
+                    <div class="chat-bubble user-bubble">{message_content}</div>
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.markdown(f"""
+                <div class="chat-container">
+                    <div class="chat-bubble bot-bubble">{message_content}</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+
+# ✅ **Call function to display chat history**
 display_chat_history()
 
 
