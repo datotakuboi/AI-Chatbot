@@ -102,7 +102,7 @@ with st.sidebar:
         def extract_text_from_pdf(pdf_file):
             """Extract text from an uploaded PDF file"""
             pdf_reader = PyPDF2.PdfReader(pdf_file)
-            return "\n".join([page.extract_text() for page in pdf_reader.pages]).strip()
+            return "\n".join([page.extract_text() for page in pdf_reader.pages if page.extract_text()]).strip()
 
         pdf_text = extract_text_from_pdf(uploaded_pdf)
         st.success("📄 PDF uploaded and processed!")
@@ -142,15 +142,7 @@ with st.sidebar:
         time.sleep(1)
         st.rerun()
 
-# ✅ **Centering AI Chatbot Title and Welcome Text**
-
-# ✅ **Centered Title and Subtitle**
-st.markdown("<h2 style='text-align: center; color: white;'>Welcome to AI Chatbot</h2>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; font-size: 18px;'>💬 Ask me anything!</p>", unsafe_allow_html=True)
- 
-
 # ✅ **Chatbot Interface**
-# Ensure at least one conversation exists before accessing it
 if "conversations" not in st.session_state:
     st.session_state.conversations = [[]]  
 
@@ -177,11 +169,19 @@ if user_input:
     # **Generate AI Response with PDF Context**
     with st.spinner("Processing..."):
         try:
-            prompt = f"{user_input}"
+            prompt = user_input
             if pdf_text:
                 prompt = f"Based on this document:\n\n{pdf_text}\n\nAnswer this question: {user_input}"
 
-            response = model.generate_content(prompt, generation_config={"max_output_tokens": 200})
+            # 🔥 **Unlimited response generation with better quality**
+            generation_config = {
+                "temperature": 0.7,  # Adjusts response creativity
+                "top_p": 0.9,        # Ensures diverse responses
+                "top_k": 40,         # Limits response randomness
+                "max_output_tokens": 2048  # Allows **longer** responses
+            }
+
+            response = model.generate_content(prompt, generation_config=generation_config)
             bot_response = response.text if response and response.text else "I'm not sure how to respond."
         except Exception as e:
             bot_response = f"⚠️ Error: {str(e)}"
