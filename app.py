@@ -18,6 +18,7 @@ except KeyError:
 
 # ✅ **Initialize Gemini AI**
 genai.configure(api_key=API_KEY)
+model = genai.GenerativeModel("gemini-2.0-flash")
 
 # ✅ **Initialize Firebase**
 def initialize_firebase():
@@ -92,16 +93,6 @@ if "user" not in st.session_state:
 
 # ✅ **If Logged In, Show Chatbot**
 with st.sidebar:
-    # ✅ **Model Selection**
-    st.markdown("## ⚙️ AI Model Selection")
-    model_choice = st.selectbox(
-        "Choose an AI model:",
-        options=["gemini-2.0-flash", "gemini-2.0", "gemini-2.0-pro"],
-        index=0,  # Default to 'gemini-2.0-flash' for faster responses
-    )
-
-    model = genai.GenerativeModel(model_choice)  # Dynamically select model
-
     # ✅ **PDF Upload (Appears Only After Login)**
     st.markdown("## 📂 Upload PDF for Context")
     uploaded_pdf = st.file_uploader("Upload a PDF", type=["pdf"])
@@ -124,6 +115,21 @@ with st.sidebar:
     if st.button("➕ New Chat"):
         st.session_state.conversations.append([])
         st.session_state.current_chat = len(st.session_state.conversations) - 1
+        st.rerun()
+
+    # **Display Chat History**
+    st.markdown("### Chat History")
+    for i, conv in enumerate(st.session_state.conversations):
+        with st.expander(f"Conversation {i+1}"):
+            for msg in conv:
+                role = "🧑" if msg["role"] == "user" else "🤖"
+                st.write(f"{role} {msg['content']}")
+            if st.button("🗑 Delete", key=f"delete_{i}"):
+                del st.session_state.conversations[i]
+                st.rerun()
+
+    if st.button("🗑 Clear All Chats"):
+        st.session_state.conversations = []
         st.rerun()
 
     # ✅ **Move "Logged in as" & Logout to the Bottom**
@@ -167,12 +173,12 @@ if user_input:
             if pdf_text:
                 prompt = f"Based on this document:\n\n{pdf_text}\n\nAnswer this question: {user_input}"
 
-            # ✅ **Custom AI Model Response**
+            # 🔥 **Unlimited response generation with better quality**
             generation_config = {
-                "temperature": 0.7,
-                "top_p": 0.9,
-                "top_k": 40,
-                "max_output_tokens": 2048  # Allows longer responses
+                "temperature": 0.7,  # Adjusts response creativity
+                "top_p": 0.9,        # Ensures diverse responses
+                "top_k": 40,         # Limits response randomness
+                "max_output_tokens": 2048  # Allows **longer** responses
             }
 
             response = model.generate_content(prompt, generation_config=generation_config)
