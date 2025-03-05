@@ -277,33 +277,20 @@ if user_input:
     if pdf_text:
         prompt = f"Based on the following extracted information from uploaded PDFs:\n\n{pdf_text}\n\n{prompt}"
 
-    # ✅ Ensure "Processing..." is added before AI generates a response
-st.session_state.conversations[st.session_state.current_chat].append({"role": "assistant", "content": "🤖 Processing..."})
-display_chat_history()
-st.rerun()  # Forces UI update
+    # **Generate AI Response**
+    with st.spinner("Processing..."):
+        try:
+            response = model.generate_content(prompt, generation_config={
+                "temperature": 0.7,  # Adjusts response creativity
+                "top_p": 0.9,        # Ensures diverse responses
+                "top_k": 40,         # Limits response randomness
+                "max_output_tokens": 2048  # Allows **longer** responses
+            })
+            bot_response = response.text if response and response.text else "I'm not sure how to respond."
+        except Exception as e:
+            bot_response = f"⚠️ Error: {str(e)}"
 
-# **Ensure `bot_response` has a default fallback**
-bot_response = "⚠️ Unable to generate a response."
-
-# ✅ **Generate AI Response**
-try:
-    response = model.generate_content(prompt, generation_config={
-        "temperature": 0.7,  # Adjusts response creativity
-        "top_p": 0.9,        # Ensures diverse responses
-        "top_k": 40,         # Limits response randomness
-        "max_output_tokens": 2048  # Allows **longer** responses
-    })
-    
-    # ✅ **Check if response is valid**
-    if response and response.text:
-        bot_response = response.text
-    else:
-        bot_response = "⚠️ Sorry, I couldn't generate a response."
-
-except Exception as e:
-    bot_response = f"⚠️ Error: {str(e)}"
-
-# ✅ **Replace "Processing..." with the actual response**
-st.session_state.conversations[st.session_state.current_chat][-1] = {"role": "assistant", "content": bot_response}
-display_chat_history()
-st.rerun()
+    # **Update UI with Final Response**
+    st.session_state.conversations[st.session_state.current_chat].append({"role": "assistant", "content": bot_response})
+    display_chat_history()
+    st.rerun()
