@@ -168,11 +168,14 @@ with st.sidebar:
         <button class="logout-button" type="submit">🚪 Logout</button>
     </form>
 """
-    if st.button("🚪 Logout"):
-        st.session_state.pop("user", None)
-        st.success("Logged out successfully!")
-        time.sleep(1)
-        st.rerun()
+st.markdown(logout_html, unsafe_allow_html=True)
+    # Logout functionality
+if st.button("🚪 Logout", key="logout", help="Click to log out"):
+    st.session_state.pop("user", None)
+    st.success("Logged out successfully!")
+    time.sleep(1)
+    st.rerun()
+
 # ✅ **Welcome Message with Image**
 col1, col2, col3 = st.columns([1, 2, 1])  # Center the image
 with col2:
