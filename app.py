@@ -88,9 +88,11 @@ def initialize_firebase():
 
 initialize_firebase()
 
-# ✅ **Sidebar Navigation**
+# ✅ **Check Authentication Status**
 if "user" not in st.session_state:
-    with st.sidebar:
+    col1, col2, col3 = st.columns([1, 2, 1])  # Centering the forms
+
+    with col2:  # Form appears in the middle column
         selected = option_menu(
             menu_title="Navigation",
             options=["Login", "Create Account", "Forgot Password?"],
@@ -99,11 +101,6 @@ if "user" not in st.session_state:
             default_index=0,
         )
 
-# ✅ **Handle Authentication**
-if "user" not in st.session_state:
-    col1, col2, col3 = st.columns([1, 2, 1])  # Centering the forms
-
-    with col2:  # Form appears in the middle column
         if selected == "Login":
             st.title("🔑 Login")
             with st.form("Login Form", clear_on_submit=False):
@@ -149,29 +146,41 @@ if "user" not in st.session_state:
                     except Exception as e:
                         st.error(f"❌ Error: {str(e)}")
 
-    st.stop()
+    st.stop()  # Prevents execution if user is not logged in
 
-# ✅ **Welcome Message**
-st.markdown(
-    """
-    <div class='welcome-container'>
-        <p class='welcome-title'>Welcome to AI Chatbot 🤖</p>
-        <p class='welcome-text'>💬 Ask me anything, and I'll do my best to help!</p>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
+# ✅ **Sidebar for Logged-in Users**
+with st.sidebar:
+    st.markdown("## 📂 Upload PDF for Context")
+    uploaded_pdf = st.file_uploader("Upload a PDF", type=["pdf"])
+
+    pdf_text = ""
+    if uploaded_pdf:
+        def extract_text_from_pdf(pdf_file):
+            pdf_reader = PyPDF2.PdfReader(pdf_file)
+            return "\n".join([page.extract_text() for page in pdf_reader.pages if page.extract_text()]).strip()
+
+        pdf_text = extract_text_from_pdf(uploaded_pdf)
+        st.success("📄 PDF uploaded and processed!")
+
+    st.markdown("---")
+    st.write(f"✅ Logged in as: **{st.session_state['user']['email']}**")
+
+    if st.button("🚪 Logout"):
+        st.session_state.pop("user", None)
+        st.success("Logged out successfully!")
+        time.sleep(1)
+        st.rerun()
 
 # ✅ **Chatbot Interface**
 st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
 
 if "conversations" not in st.session_state:
-    st.session_state.conversations = [[]]  
+    st.session_state.conversations = [[]]
 
 if "current_chat" not in st.session_state:
     st.session_state.current_chat = 0
 
-# **Display Chat History with Proper Styling**
+# **Display Chat History**
 for message in st.session_state.conversations[st.session_state.current_chat]:
     role_class = "user-message" if message["role"] == "user" else "bot-message"
     role_container = "user-message-container" if message["role"] == "user" else "bot-message-container"
@@ -187,36 +196,30 @@ for message in st.session_state.conversations[st.session_state.current_chat]:
 
 st.markdown("</div>", unsafe_allow_html=True)
 
-# **User Input**
+# ✅ **User Input & AI Response**
 user_input = st.chat_input("Type your message...")
 
 if user_input:
-    # Append User Message
     st.session_state.conversations[st.session_state.current_chat].append({"role": "user", "content": user_input})
 
-    # **Display User Message**
-    st.markdown(f"""
-        <div class="user-message-container">
-            <div class="chat-message user-message">{user_input}</div>
-        </div>
-    """, unsafe_allow_html=True)
+    with st.chat_message("user"):
+        st.markdown(user_input)
 
-    # **Generate AI Response**
+    with st.chat_message("assistant"):
+        msg_placeholder = st.empty()
+
     with st.spinner("Processing..."):
         try:
-            response = model.generate_content(user_input)
+            prompt = user_input
+            if pdf_text:
+                prompt = f"Based on this document:\n\n{pdf_text}\n\nAnswer this question: {user_input}"
+
+            response = model.generate_content(prompt)
             bot_response = response.text if response and response.text else "I'm not sure how to respond."
         except Exception as e:
             bot_response = f"⚠️ Error: {str(e)}"
 
-    # Append Bot Response
     st.session_state.conversations[st.session_state.current_chat].append({"role": "assistant", "content": bot_response})
-
-    # **Display Bot Response**
-    st.markdown(f"""
-        <div class="bot-message-container">
-            <div class="chat-message bot-message">{bot_response}</div>
-        </div>
-    """, unsafe_allow_html=True)
+    msg_placeholder.markdown(bot_response)
 
     st.rerun()
