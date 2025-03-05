@@ -212,17 +212,29 @@ def display_chat_history():
         margin: auto; /* Center chat container */
     }
 
-    /* Input Field - Centers & Matches Chat Width */
-    div[data-baseweb="input"] {
-        max-width: 750px !important; /* Match chat width */
-        margin: auto !important; /* Centers input */
+    /* Fix Input Field Width */
+    .stChatInput {
         display: flex;
         justify-content: center;
-        padding: 10px 0; /* Adds spacing for better UI */
+        margin: auto;
+    }
+
+    /* Target the actual input field */
+    div[data-baseweb="base-input"] {
+        max-width: 750px !important; /* Match chat width */
+        width: 100% !important;
+        margin: auto !important;
+    }
+
+    /* Adjust parent div of input field */
+    div[data-testid="stChatInput"] {
+        max-width: 750px !important;
+        width: 100% !important;
+        margin: auto !important;
+        padding-bottom: 10px; /* Add space between input and chat */
     }
     </style>
 """, unsafe_allow_html=True)
-
 
 
         for msg in st.session_state.conversations[st.session_state.current_chat]:
