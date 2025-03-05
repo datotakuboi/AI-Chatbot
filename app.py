@@ -267,30 +267,10 @@ if user_input:
     st.session_state.conversations[st.session_state.current_chat].append({"role": "user", "content": user_input})
     display_chat_history()
     
-    # **Show a spinner inside the chat container**
-    with chat_history_placeholder.container():
-        st.markdown("""
-        <div class="chat-container">
-            <div class="chat-bubble bot-bubble">
-                <div class="spinner"></div>
-            </div>
-        </div>
-        <style>
-        .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-left-color: #0078FF;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        </style>
-        """, unsafe_allow_html=True)
+    # Append temporary bot response (spinner)
+    temp_bot_msg = {"role": "assistant", "content": "🤖 Thinking..."}
+    st.session_state.conversations[st.session_state.current_chat].append(temp_bot_msg)
+    display_chat_history()
 
     # Construct conversation history for AI
     conversation_history = "\n".join(
@@ -315,9 +295,9 @@ if user_input:
     except Exception as e:
         bot_response = f"⚠️ Error: {str(e)}"
 
-    # **Replace Spinner with AI Response**
-    st.session_state.conversations[st.session_state.current_chat].append({"role": "assistant", "content": bot_response})
-    
+    # Replace the temporary message with the actual bot response
+    st.session_state.conversations[st.session_state.current_chat][-1]["content"] = bot_response
+
     # **Update UI**
     display_chat_history()
     st.rerun()
