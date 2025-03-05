@@ -152,7 +152,11 @@ with st.sidebar:
         st.success("Logged out successfully!")
         time.sleep(1)
         st.rerun()
-
+# ✅ **Welcome Message with Image**
+col1, col2, col3 = st.columns([1, 2, 1])  # Center the image
+with col2:
+    st.image("citlogo.png", use_column_width=True)  # Ensure it's centered
+    
 # ✅ **Welcome Message**
 st.markdown("<h2 style='text-align: center;'>Welcome to AI Chatbot 🤖</h2>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; font-size: 18px;'>💬 Ask me anything, and I'll do my best to help!</p>", unsafe_allow_html=True)
