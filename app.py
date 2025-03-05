@@ -234,7 +234,7 @@ if user_input:
 
     # Construct conversation history for AI
     conversation_history = "\n".join(
-        [f"User: {msg['content']}" if msg["role"] == "user" else f"AI: {msg['content']}"
+        [f"User: {msg['content']}" if msg["role"] == "user" else msg['content']
          for msg in st.session_state.conversations[st.session_state.current_chat]]
     )
 
