@@ -167,7 +167,7 @@ def display_chat_history():
         st.markdown("""
             <style>
             .user-message {
-                background-color: #DCF8C6;
+                background-color: #F0F0F0;
                 color: #000000;
                 padding: 15px;
                 border-radius: 10px;
@@ -178,7 +178,7 @@ def display_chat_history():
                 font-size: 16px;
             }
             .bot-message {
-                background-color: #F1F0F0;
+                background-color: #ECECEC;
                 color: #000000;
                 padding: 15px;
                 border-radius: 10px;
