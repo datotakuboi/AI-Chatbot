@@ -278,19 +278,28 @@ if user_input:
         prompt = f"Based on the following extracted information from uploaded PDFs:\n\n{pdf_text}\n\n{prompt}"
 
     # **Generate AI Response**
-    with st.spinner("Processing..."):
-        try:
-            response = model.generate_content(prompt, generation_config={
-                "temperature": 0.7,  # Adjusts response creativity
-                "top_p": 0.9,        # Ensures diverse responses
-                "top_k": 40,         # Limits response randomness
-                "max_output_tokens": 2048  # Allows **longer** responses
-            })
-            bot_response = response.text if response and response.text else "I'm not sure how to respond."
-        except Exception as e:
-            bot_response = f"⚠️ Error: {str(e)}"
+    # **Show a temporary loading response inside the chat bubble**
+loading_message = {"role": "assistant", "content": "⏳ Thinking..."}
+st.session_state.conversations[st.session_state.current_chat].append(loading_message)
+display_chat_history()
+st.rerun()
 
-    # **Update UI with Final Response**
-    st.session_state.conversations[st.session_state.current_chat].append({"role": "assistant", "content": bot_response})
-    display_chat_history()
-    st.rerun()
+# **Generate AI Response**
+try:
+    response = model.generate_content(prompt, generation_config={
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "top_k": 40,
+        "max_output_tokens": 2048
+    })
+    bot_response = response.text if response and response.text else "I'm not sure how to respond."
+except Exception as e:
+    bot_response = f"⚠️ Error: {str(e)}"
+
+# **Replace Spinner Message with AI Response**
+st.session_state.conversations[st.session_state.current_chat][-1]["content"] = bot_response
+
+# **Refresh Chat Display**
+display_chat_history()
+st.rerun()
+
