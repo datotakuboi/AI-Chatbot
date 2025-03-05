@@ -265,6 +265,12 @@ user_input = st.chat_input("Ask anything...")
 if user_input:
     # Append user message to session state
     st.session_state.conversations[st.session_state.current_chat].append({"role": "user", "content": user_input})
+    display_chat_history()
+    
+    # Append temporary bot response (spinner)
+    temp_bot_msg = {"role": "assistant", "content": "🤖 Thinking..."}
+    st.session_state.conversations[st.session_state.current_chat].append(temp_bot_msg)
+    display_chat_history()
 
     # Construct conversation history for AI
     conversation_history = "\n".join(
@@ -278,19 +284,20 @@ if user_input:
         prompt = f"Based on the following extracted information from uploaded PDFs:\n\n{pdf_text}\n\n{prompt}"
 
     # **Generate AI Response**
-    with st.spinner("Processing..."):
-        try:
-            response = model.generate_content(prompt, generation_config={
-                "temperature": 0.7,  # Adjusts response creativity
-                "top_p": 0.9,        # Ensures diverse responses
-                "top_k": 40,         # Limits response randomness
-                "max_output_tokens": 2048  # Allows **longer** responses
-            })
-            bot_response = response.text if response and response.text else "I'm not sure how to respond."
-        except Exception as e:
-            bot_response = f"⚠️ Error: {str(e)}"
+    try:
+        response = model.generate_content(prompt, generation_config={
+            "temperature": 0.7,  # Adjusts response creativity
+            "top_p": 0.9,        # Ensures diverse responses
+            "top_k": 40,         # Limits response randomness
+            "max_output_tokens": 2048  # Allows **longer** responses
+        })
+        bot_response = response.text if response and response.text else "I'm not sure how to respond."
+    except Exception as e:
+        bot_response = f"⚠️ Error: {str(e)}"
 
-    # **Update UI with Final Response**
-    st.session_state.conversations[st.session_state.current_chat].append({"role": "assistant", "content": bot_response})
+    # Replace the temporary message with the actual bot response
+    st.session_state.conversations[st.session_state.current_chat][-1]["content"] = bot_response
+
+    # **Update UI**
     display_chat_history()
     st.rerun()
