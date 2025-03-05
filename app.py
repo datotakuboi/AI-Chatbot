@@ -152,10 +152,17 @@ with st.sidebar:
         time.sleep(1)
         st.rerun()
 
-# ✅ **Welcome Message with Image**
-col1, col2, col3 = st.columns([1, 2, 1])  # Center the image
-with col2:
-    st.image("citlogo.png", use_container_width=True)  # Ensure it's centered
+# Center the logo image
+    col1, col2, col3 = st.columns([3, 4, 3])
+
+    with col1:
+        st.write(' ')
+
+    with col2:
+        st.image("citlogo.png", width=250) 
+
+    with col3:
+        st.write(' ')
     
 # ✅ **Welcome Message**
 st.markdown("<h2 style='text-align: center;'>Welcome to CIT Chatbot 🤖</h2>", unsafe_allow_html=True)
