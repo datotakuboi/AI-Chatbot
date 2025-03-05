@@ -167,7 +167,7 @@ def display_chat_history():
         st.markdown("""
             <style>
             .user-message {
-                background-color: #F0F0F0;
+                background-color: #DCF8C6;
                 color: #000000;
                 padding: 15px;
                 border-radius: 10px;
@@ -178,7 +178,7 @@ def display_chat_history():
                 font-size: 16px;
             }
             .bot-message {
-                background-color: #ECECEC;
+                background-color: #F1F0F0;
                 color: #000000;
                 padding: 15px;
                 border-radius: 10px;
@@ -198,25 +198,16 @@ def display_chat_history():
             }
             </style>
         """, unsafe_allow_html=True)
+        for chat in st.session_state.chat_history:
+            st.markdown(f"""
+            <div class="user-message-container">
+                <div class="user-message">{chat['question']}</div>
+            </div>
+            <div class="bot-message-container">
+                <div class="bot-message">{chat['answer']['Answer']}</div>
+            </div>
+            """, unsafe_allow_html=True)
 
-        for msg in st.session_state.conversations[st.session_state.current_chat]:
-            role = msg["role"]
-            message_content = msg["content"]
-
-            if role == "user":
-                st.markdown(f"""
-                <div class="user-message-container">
-                    <div class="user-message">{message_content}</div>
-                </div>
-                """, unsafe_allow_html=True)
-            else:
-                st.markdown(f"""
-                <div class="bot-message-container">
-                    <div class="bot-message">{message_content}</div>
-                </div>
-                """, unsafe_allow_html=True)
-
-# ✅ **Call function to display chat history**
 display_chat_history()
 
 
