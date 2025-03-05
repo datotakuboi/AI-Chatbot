@@ -278,17 +278,20 @@ if user_input:
         prompt = f"Based on the following extracted information from uploaded PDFs:\n\n{pdf_text}\n\n{prompt}"
 
     # **Generate AI Response**
-    with st.spinner("Processing..."):
-        try:
-            response = model.generate_content(prompt, generation_config={
-                "temperature": 0.7,  # Adjusts response creativity
-                "top_p": 0.9,        # Ensures diverse responses
-                "top_k": 40,         # Limits response randomness
-                "max_output_tokens": 2048  # Allows **longer** responses
-            })
-            bot_response = response.text if response and response.text else "I'm not sure how to respond."
-        except Exception as e:
-            bot_response = f"⚠️ Error: {str(e)}"
+    with st.spinner("🤖 Processing..."):
+        col1, col2, col3 = st.columns([1, 2, 1])  # Create columns for alignment
+        with col2:  # Center the spinner
+            try:
+                response = model.generate_content(prompt, generation_config={
+                    "temperature": 0.7,  # Adjusts response creativity
+                    "top_p": 0.9,        # Ensures diverse responses
+                    "top_k": 40,         # Limits response randomness
+                    "max_output_tokens": 2048  # Allows **longer** responses
+                })
+                bot_response = response.text if response and response.text else "I'm not sure how to respond."
+            except Exception as e:
+                bot_response = f"⚠️ Error: {str(e)}"
+
 
     # **Update UI with Final Response**
     st.session_state.conversations[st.session_state.current_chat].append({"role": "assistant", "content": bot_response})
