@@ -277,20 +277,11 @@ if user_input:
     if pdf_text:
         prompt = f"Based on the following extracted information from uploaded PDFs:\n\n{pdf_text}\n\n{prompt}"
 
-    # ✅ **Generate AI Response**
-    with st.spinner("Processing..."):
-        st.markdown("""
-            <style>
-            .processing-container {
-                display: flex;
-                justify-content: center; /* Centers the text */
-                align-items: center;
-                margin-top: 10px;
-                font-weight: bold;
-                color: white; /* Adjust to match theme */
-            }
-            </style>
-            <div class="processing-container">🤖 Processing...</div>
+    # ✅ Display "Processing..." inside bot chat bubble
+        st.markdown(f"""
+            <div class="chat-container">
+                <div class="chat-bubble bot-bubble">🤖 Processing...</div>
+            </div>
         """, unsafe_allow_html=True)
 
         try:
