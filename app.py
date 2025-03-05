@@ -112,7 +112,7 @@ with st.sidebar:
     if "conversations" not in st.session_state:
         st.session_state.conversations = [[]]
 
-    if st.button("🗑 Clear All Chats"):
+    if st.button("🗑 Clear All Chats", key="clear_chats"):
         st.session_state.conversations = [[]]  # Ensure at least one empty conversation exists
         st.session_state.current_chat = 0  # Reset index to avoid out-of-range errors
         st.rerun()
