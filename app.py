@@ -176,38 +176,53 @@ def display_chat_history():
 
     with chat_history_placeholder.container():
         st.markdown("""
-            <style>
-            .chat-bubble {
-                padding: 12px;
-                border-radius: 15px;
-                margin-bottom: 5px;
-                max-width: 65%; /* Reduce width */
-                word-wrap: break-word;
-                font-size: 16px;
-            }
-            .user-bubble {
-                background-color: #0078FF;
-                color: white;
-                align-self: flex-end;
-                text-align: right;
-                margin-left: auto;
-            }
-            .bot-bubble {
-                background-color: #F0F0F0;
-                color: black;
-                align-self: flex-start;
-                text-align: left;
-                margin-right: auto;
-            }
-            .chat-container {
-                display: flex;
-                flex-direction: column;
-                margin-bottom: 10px;
-                max-width: 750px; /* Set max width */
-                margin: auto; /* Centering */
-            }
-            </style>
-        """, unsafe_allow_html=True)
+    <style>
+    /* Chat Bubble Styles */
+    .chat-bubble {
+        padding: 12px;
+        border-radius: 15px;
+        margin-bottom: 5px;
+        max-width: 65%; /* Ensures bubbles don't stretch too much */
+        word-wrap: break-word;
+        font-size: 16px;
+    }
+
+    .user-bubble {
+        background-color: #0078FF;
+        color: white;
+        align-self: flex-end;
+        text-align: right;
+        margin-left: auto;
+    }
+
+    .bot-bubble {
+        background-color: #F0F0F0;
+        color: black;
+        align-self: flex-start;
+        text-align: left;
+        margin-right: auto;
+    }
+
+    /* Chat Container - Centers the Chat */
+    .chat-container {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 10px;
+        max-width: 750px; /* Set max width to match ChatGPT */
+        margin: auto; /* Center chat container */
+    }
+
+    /* Input Field - Centers & Matches Chat Width */
+    div[data-baseweb="input"] {
+        max-width: 750px !important; /* Match chat width */
+        margin: auto !important; /* Centers input */
+        display: flex;
+        justify-content: center;
+        padding: 10px 0; /* Adds spacing for better UI */
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 
 
         for msg in st.session_state.conversations[st.session_state.current_chat]:
