@@ -97,15 +97,13 @@ if "user" not in st.session_state:
 
 # ✅ **If Logged In, Show Chatbot**
 with st.sidebar:
-    # ✅ **PDF Upload (Appears Only After Login)**
     st.markdown("## 📂 Upload PDF for Context")
     uploaded_pdfs = st.file_uploader("Upload PDFs", type=["pdf"], accept_multiple_files=True)
 
     pdf_text = ""
-
     if uploaded_pdfs:
         def extract_text_from_pdfs(pdf_files):
-            """Extract and combine text from multiple uploaded PDF file"""
+            """Extract and combine text from multiple uploaded PDFs"""
             combined_text = ""
             for pdf_file in pdf_files:
                 pdf_reader = PyPDF2.PdfReader(pdf_file)
@@ -116,17 +114,12 @@ with st.sidebar:
         pdf_text = extract_text_from_pdfs(uploaded_pdfs)
         st.success(f"📄 {len(uploaded_pdfs)} PDF(s) uploaded and processed!")
 
-    # ✅ **New Chat & Chat History**
     st.markdown("## 💬 Chat")
-    if "conversations" not in st.session_state:
-        st.session_state.conversations = [[]]
-
     if st.button("+ New Chat"):
         st.session_state.conversations.append([])
         st.session_state.current_chat = len(st.session_state.conversations) - 1
         st.rerun()
 
-    # **Display Chat History**
     st.markdown("### Chat History")
     for i, conv in enumerate(st.session_state.conversations):
         with st.expander(f"Conversation {i+1}"):
@@ -138,129 +131,61 @@ with st.sidebar:
                 st.rerun()
 
     if st.button("🗑 Clear All Chats"):
-        st.session_state.conversations = [[]]  # Ensure at least one empty conversation exists
-        st.session_state.current_chat = 0  # Reset index to avoid out-of-range errors
+        st.session_state.conversations = [[]]
+        st.session_state.current_chat = 0
         st.rerun()
 
-
-    # ✅ **Move "Logged in as" & Logout to the Bottom**
-    st.markdown("---")  # Separator for clarity
+    st.markdown("---")
     st.write(f"✅ Logged in as: **{st.session_state['user']['email']}**")
-    if st.button("Logout"):
+    if st.button("🚪 Logout"):
         st.session_state.pop("user", None)
         st.success("Logged out successfully!")
         time.sleep(1)
         st.rerun()
 
 # ✅ **Welcome Message with Image**
-col1, col2, col3 = st.columns([1, 2, 1])  # Center the image
+col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
-    st.image("citlogo.png", use_container_width=True)  # Ensure it's centered
-    
-# ✅ **Welcome Message**
+    st.image("citlogo.png", use_container_width=True)
+
 st.markdown("<h2 style='text-align: center;'>Welcome to CIT Chatbot 🤖</h2>", unsafe_allow_html=True)
 
+# ✅ **Chat Interface with Limited Width**
+chat_container = st.container()
 
-# ✅ **Chatbot Interface**
-if "conversations" not in st.session_state:
-    st.session_state.conversations = [[]]  
-
-if "current_chat" not in st.session_state:
-    st.session_state.current_chat = 0
-
-# ✅ **Display Chat History with Styling**
-chat_history_placeholder = st.empty()
-
-def display_chat_history():
-    chat_history_placeholder.empty()  # Clear before rendering
-
-    with chat_history_placeholder.container():
-        st.markdown("""
-            <style>
-            .chat-bubble {
-                padding: 12px;
-                border-radius: 15px;
-                margin-bottom: 5px;
-                max-width: 70%;
-                word-wrap: break-word;
-                font-size: 16px;
-            }
-            .user-bubble {
-                background-color: #0078FF;
-                color: white;
-                align-self: flex-end;
-                text-align: right;
-                margin-left: auto;
-            }
-            .bot-bubble {
-                background-color: #F0F0F0;
-                color: black;
-                align-self: flex-start;
-                text-align: left;
-                margin-right: auto;
-            }
+with chat_container:
+    st.markdown("""
+        <style>
             .chat-container {
-                display: flex;
-                flex-direction: column;
-                margin-bottom: 10px;
+                max-width: 900px;
+                margin: auto;
             }
-            </style>
-        """, unsafe_allow_html=True)
+        </style>
+        <div class="chat-container">
+    """, unsafe_allow_html=True)
 
-        for msg in st.session_state.conversations[st.session_state.current_chat]:
-            role = msg["role"]
-            message_content = msg["content"]
+    chat_history_placeholder = st.empty()
 
-            if role == "user":
-                st.markdown(f"""
-                <div class="chat-container">
-                    <div class="chat-bubble user-bubble">{message_content}</div>
-                </div>
-                """, unsafe_allow_html=True)
-            else:
-                st.markdown(f"""
-                <div class="chat-container">
-                    <div class="chat-bubble bot-bubble">{message_content}</div>
-                </div>
-                """, unsafe_allow_html=True)
+    def display_chat_history():
+        chat_history_placeholder.empty()
+        with chat_history_placeholder.container():
+            for msg in st.session_state.conversations[st.session_state.current_chat]:
+                role = msg["role"]
+                message_content = msg["content"]
 
+                if role == "user":
+                    st.markdown(f"<div style='background-color:#0078FF; color:white; padding:10px; border-radius:10px; margin-bottom:5px;'>{message_content}</div>", unsafe_allow_html=True)
+                else:
+                    st.markdown(f"<div style='background-color:#F0F0F0; color:black; padding:10px; border-radius:10px; margin-bottom:5px;'>{message_content}</div>", unsafe_allow_html=True)
 
-# ✅ **Call function to display chat history**
-display_chat_history()
-
-
-# **User Input**
-user_input = st.chat_input("Ask anything...")
-
-if user_input:
-    # Append user message to session state
-    st.session_state.conversations[st.session_state.current_chat].append({"role": "user", "content": user_input})
-
-    # Construct conversation history for AI
-    conversation_history = "\n".join(
-        [f"User: {msg['content']}" if msg["role"] == "user" else msg['content']
-         for msg in st.session_state.conversations[st.session_state.current_chat]]
-    )
-
-    # Prepare the prompt with context
-    prompt = f"{conversation_history}\n\nUser: {user_input}"
-    if pdf_text:
-        prompt = f"Based on the following extracted information from uploaded PDFs:\n\n{pdf_text}\n\n{prompt}"
-
-    # **Generate AI Response**
-    with st.spinner("Processing..."):
-        try:
-            response = model.generate_content(prompt, generation_config={
-                "temperature": 0.7,  # Adjusts response creativity
-                "top_p": 0.9,        # Ensures diverse responses
-                "top_k": 40,         # Limits response randomness
-                "max_output_tokens": 2048  # Allows **longer** responses
-            })
-            bot_response = response.text if response and response.text else "I'm not sure how to respond."
-        except Exception as e:
-            bot_response = f"⚠️ Error: {str(e)}"
-
-    # **Update UI with Final Response**
-    st.session_state.conversations[st.session_state.current_chat].append({"role": "assistant", "content": bot_response})
     display_chat_history()
-    st.rerun()
+
+    user_input = st.chat_input("Ask anything...")
+    if user_input:
+        st.session_state.conversations[st.session_state.current_chat].append({"role": "user", "content": user_input})
+        with st.spinner("Processing..."):
+            response = model.generate_content(user_input)
+            bot_response = response.text if response and response.text else "I'm not sure how to respond."
+        st.session_state.conversations[st.session_state.current_chat].append({"role": "assistant", "content": bot_response})
+        display_chat_history()
+        st.rerun()
