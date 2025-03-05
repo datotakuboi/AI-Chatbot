@@ -144,11 +144,10 @@ with st.sidebar:
 
 
     # ✅ **Move "Logged in as" & Logout to the Bottom**
-st.markdown("---")  # Separator for clarity
-st.write(f"✅ Logged in as: **{st.session_state['user']['email']}**")
+    st.markdown("---")  # Separator for clarity
+    st.write(f"✅ Logged in as: **{st.session_state['user']['email']}**")
 
-# Styled red logout button
-logout_html = """
+    logout_html = """
     <style>
         .logout-button {
             background-color: #FF4B4B;
@@ -169,16 +168,11 @@ logout_html = """
         <button class="logout-button" type="submit">🚪 Logout</button>
     </form>
 """
-
-st.markdown(logout_html, unsafe_allow_html=True)
-
-# Logout functionality
-if st.button("🚪 Logout", key="logout", help="Click to log out"):
-    st.session_state.pop("user", None)
-    st.success("Logged out successfully!")
-    time.sleep(1)
-    st.rerun()
-
+    if st.button("🚪 Logout"):
+        st.session_state.pop("user", None)
+        st.success("Logged out successfully!")
+        time.sleep(1)
+        st.rerun()
 # ✅ **Welcome Message with Image**
 col1, col2, col3 = st.columns([1, 2, 1])  # Center the image
 with col2:
