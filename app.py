@@ -232,25 +232,26 @@ if user_input:
     # Append user message to session state
     st.session_state.conversations[st.session_state.current_chat].append({"role": "user", "content": user_input})
 
-    # Refresh chat history
-    display_chat_history()
+    # Construct conversation history for AI
+    conversation_history = "\n".join(
+        [f"User: {msg['content']}" if msg["role"] == "user" else f"AI: {msg['content']}"
+         for msg in st.session_state.conversations[st.session_state.current_chat]]
+    )
 
-    # **Generate AI Response with PDF Context**
+    # Prepare the prompt with context
+    prompt = f"{conversation_history}\n\nUser: {user_input}"
+    if pdf_text:
+        prompt = f"Based on the following extracted information from uploaded PDFs:\n\n{pdf_text}\n\n{prompt}"
+
+    # **Generate AI Response**
     with st.spinner("Processing..."):
         try:
-            prompt = user_input
-            if pdf_text:
-                prompt = f"Based on the following extracted information from uploaded PDFs:\n\n{pdf_text}\n\nAnswer this question: {user_input}"
-
-            # 🔥 **Unlimited response generation with better quality**
-            generation_config = {
+            response = model.generate_content(prompt, generation_config={
                 "temperature": 0.7,  # Adjusts response creativity
                 "top_p": 0.9,        # Ensures diverse responses
                 "top_k": 40,         # Limits response randomness
                 "max_output_tokens": 2048  # Allows **longer** responses
-            }
-
-            response = model.generate_content(prompt, generation_config=generation_config)
+            })
             bot_response = response.text if response and response.text else "I'm not sure how to respond."
         except Exception as e:
             bot_response = f"⚠️ Error: {str(e)}"
@@ -258,5 +259,4 @@ if user_input:
     # **Update UI with Final Response**
     st.session_state.conversations[st.session_state.current_chat].append({"role": "assistant", "content": bot_response})
     display_chat_history()
-
     st.rerun()
