@@ -181,7 +181,7 @@ def display_chat_history():
                 padding: 12px;
                 border-radius: 15px;
                 margin-bottom: 5px;
-                max-width: 60%; /* Reduce width */
+                max-width: 65%; /* Reduce width */
                 word-wrap: break-word;
                 font-size: 16px;
             }
@@ -203,7 +203,7 @@ def display_chat_history():
                 display: flex;
                 flex-direction: column;
                 margin-bottom: 10px;
-                max-width: 700px; /* Set max width */
+                max-width: 750px; /* Set max width */
                 margin: auto; /* Centering */
             }
             </style>
