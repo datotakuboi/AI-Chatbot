@@ -267,10 +267,10 @@ if user_input:
     st.session_state.conversations[st.session_state.current_chat].append({"role": "user", "content": user_input})
     display_chat_history()
     
-    # Show a spinner inside the chat area
-    with chat_history_placeholder.container():
-        with st.spinner(" "):  # Empty text spinner
-            time.sleep(0.5)  # Short delay for visibility
+    # Append temporary bot response (spinner)
+    temp_bot_msg = {"role": "assistant", "content": "🤖 Thinking..."}
+    st.session_state.conversations[st.session_state.current_chat].append(temp_bot_msg)
+    display_chat_history()
 
     # Construct conversation history for AI
     conversation_history = "\n".join(
