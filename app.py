@@ -9,6 +9,62 @@ import PyPDF2
 # ✅ **Set page configuration**
 st.set_page_config(page_title="AI Chatbot", page_icon="🤖", layout="wide")
 
+# ✅ **Custom CSS for Chat Styling**
+st.markdown(
+    """
+    <style>
+        .chat-container {
+            max-width: 700px;
+            margin: auto;
+        }
+        .chat-message {
+            padding: 12px;
+            border-radius: 12px;
+            margin: 8px 0;
+            max-width: 75%;
+            word-wrap: break-word;
+            font-size: 16px;
+        }
+        .user-message {
+            background-color: #0078D4;
+            color: white;
+            text-align: right;
+            margin-left: auto;
+            padding: 10px 15px;
+            border-top-right-radius: 0px;
+        }
+        .bot-message {
+            background-color: #f1f1f1;
+            color: black;
+            text-align: left;
+            padding: 10px 15px;
+            border-top-left-radius: 0px;
+        }
+        .user-message-container {
+            display: flex;
+            justify-content: flex-end;
+        }
+        .bot-message-container {
+            display: flex;
+            justify-content: flex-start;
+        }
+        .welcome-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .welcome-title {
+            font-size: 26px;
+            font-weight: bold;
+        }
+        .welcome-text {
+            font-size: 18px;
+            color: grey;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 # ✅ **Load API Key from Streamlit Secrets**
 try:
     API_KEY = st.secrets["api_keys"]["GEMINI_API_KEY"]
@@ -95,109 +151,72 @@ if "user" not in st.session_state:
 
     st.stop()
 
-# ✅ **If Logged In, Show Chatbot**
-with st.sidebar:
-    # ✅ **PDF Upload (Appears Only After Login)**
-    st.markdown("## 📂 Upload PDF for Context")
-    uploaded_pdf = st.file_uploader("Upload a PDF", type=["pdf"])
-
-    pdf_text = ""
-    if uploaded_pdf:
-        def extract_text_from_pdf(pdf_file):
-            """Extract text from an uploaded PDF file"""
-            pdf_reader = PyPDF2.PdfReader(pdf_file)
-            return "\n".join([page.extract_text() for page in pdf_reader.pages if page.extract_text()]).strip()
-
-        pdf_text = extract_text_from_pdf(uploaded_pdf)
-        st.success("📄 PDF uploaded and processed!")
-
-    # ✅ **New Chat & Chat History**
-    st.markdown("## 💬 Chat")
-    if "conversations" not in st.session_state:
-        st.session_state.conversations = [[]]
-
-    if st.button("➕ New Chat"):
-        st.session_state.conversations.append([])
-        st.session_state.current_chat = len(st.session_state.conversations) - 1
-        st.rerun()
-
-    # **Display Chat History**
-    st.markdown("### Chat History")
-    for i, conv in enumerate(st.session_state.conversations):
-        with st.expander(f"Conversation {i+1}"):
-            for msg in conv:
-                role = "🧑" if msg["role"] == "user" else "🤖"
-                st.write(f"{role} {msg['content']}")
-            if st.button("🗑 Delete", key=f"delete_{i}"):
-                del st.session_state.conversations[i]
-                st.rerun()
-
-    if st.button("🗑 Clear All Chats"):
-        st.session_state.conversations = [[]]  # Ensure at least one empty conversation exists
-        st.session_state.current_chat = 0  # Reset index to avoid out-of-range errors
-        st.rerun()
-
-
-    # ✅ **Move "Logged in as" & Logout to the Bottom**
-    st.markdown("---")  # Separator for clarity
-    st.write(f"✅ Logged in as: **{st.session_state['user']['email']}**")
-
-    if st.button("🚪 Logout"):
-        st.session_state.pop("user", None)
-        st.success("Logged out successfully!")
-        time.sleep(1)
-        st.rerun()
-
 # ✅ **Welcome Message**
-st.markdown("<h2 style='text-align: center;'>Welcome to AI Chatbot 🤖</h2>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; font-size: 18px;'>💬 Ask me anything, and I'll do my best to help!</p>", unsafe_allow_html=True)
+st.markdown(
+    """
+    <div class='welcome-container'>
+        <p class='welcome-title'>Welcome to AI Chatbot 🤖</p>
+        <p class='welcome-text'>💬 Ask me anything, and I'll do my best to help!</p>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 # ✅ **Chatbot Interface**
+st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
+
 if "conversations" not in st.session_state:
     st.session_state.conversations = [[]]  
 
 if "current_chat" not in st.session_state:
     st.session_state.current_chat = 0
 
-# **Display Chat History**
+# **Display Chat History with Proper Styling**
 for message in st.session_state.conversations[st.session_state.current_chat]:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+    role_class = "user-message" if message["role"] == "user" else "bot-message"
+    role_container = "user-message-container" if message["role"] == "user" else "bot-message-container"
+
+    st.markdown(
+        f"""
+        <div class="{role_container}">
+            <div class="chat-message {role_class}">{message['content']}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+st.markdown("</div>", unsafe_allow_html=True)
 
 # **User Input**
 user_input = st.chat_input("Type your message...")
 
 if user_input:
+    # Append User Message
     st.session_state.conversations[st.session_state.current_chat].append({"role": "user", "content": user_input})
-    with st.chat_message("user"):
-        st.markdown(user_input)
 
-    # **Loading Indicator**
-    with st.chat_message("assistant"):
-        msg_placeholder = st.empty()
+    # **Display User Message**
+    st.markdown(f"""
+        <div class="user-message-container">
+            <div class="chat-message user-message">{user_input}</div>
+        </div>
+    """, unsafe_allow_html=True)
 
-    # **Generate AI Response with PDF Context**
+    # **Generate AI Response**
     with st.spinner("Processing..."):
         try:
-            prompt = user_input
-            if pdf_text:
-                prompt = f"Based on this document:\n\n{pdf_text}\n\nAnswer this question: {user_input}"
-
-            # 🔥 **Unlimited response generation with better quality**
-            generation_config = {
-                "temperature": 0.7,  # Adjusts response creativity
-                "top_p": 0.9,        # Ensures diverse responses
-                "top_k": 40,         # Limits response randomness
-                "max_output_tokens": 2048  # Allows **longer** responses
-            }
-
-            response = model.generate_content(prompt, generation_config=generation_config)
+            response = model.generate_content(user_input)
             bot_response = response.text if response and response.text else "I'm not sure how to respond."
         except Exception as e:
             bot_response = f"⚠️ Error: {str(e)}"
 
-    # **Update UI with Final Response**
+    # Append Bot Response
     st.session_state.conversations[st.session_state.current_chat].append({"role": "assistant", "content": bot_response})
-    msg_placeholder.markdown(bot_response)  
+
+    # **Display Bot Response**
+    st.markdown(f"""
+        <div class="bot-message-container">
+            <div class="chat-message bot-message">{bot_response}</div>
+        </div>
+    """, unsafe_allow_html=True)
 
     st.rerun()
