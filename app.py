@@ -99,17 +99,22 @@ if "user" not in st.session_state:
 with st.sidebar:
     # ✅ **PDF Upload (Appears Only After Login)**
     st.markdown("## 📂 Upload PDF for Context")
-    uploaded_pdf = st.file_uploader("Upload a PDF", type=["pdf"])
+    uploaded_pdfs = st.file_uploader("Upload PDFs", type=["pdf"], accept_multiple_files=True)
 
     pdf_text = ""
-    if uploaded_pdf:
-        def extract_text_from_pdf(pdf_file):
-            """Extract text from an uploaded PDF file"""
-            pdf_reader = PyPDF2.PdfReader(pdf_file)
-            return "\n".join([page.extract_text() for page in pdf_reader.pages if page.extract_text()]).strip()
 
-        pdf_text = extract_text_from_pdf(uploaded_pdf)
-        st.success("📄 PDF uploaded and processed!")
+    if uploaded_pdfs:
+        def extract_text_from_pdfs(pdf_files):
+            """Extract and combine text from multiple uploaded PDF file"""
+            combined_text = ""
+            for pdf_file in pdf_files:
+                pdf_reader = PyPDF2.PdfReader(pdf_file)
+                text = "\n".join([page.extract_text() for page in pdf_reader.pages if page.extract_text()])
+                combined_text += f"\n\n--- Extracted from {pdf_file.name} ---\n{text}"
+            return combined_text.strip()
+
+        pdf_text = extract_text_from_pdfs(uploaded_pdfs)
+        st.success(f"📄 {len(uploaded_pdfs)} PDF(s) uploaded and processed!")
 
     # ✅ **New Chat & Chat History**
     st.markdown("## 💬 Chat")
@@ -235,7 +240,7 @@ if user_input:
         try:
             prompt = user_input
             if pdf_text:
-                prompt = f"Based on this document:\n\n{pdf_text}\n\nAnswer this question: {user_input}"
+                prompt = f"Based on the following extracted information from uploaded PDFs:\n\n{pdf_text}\n\nAnswer this question: {user_input}"
 
             # 🔥 **Unlimited response generation with better quality**
             generation_config = {
