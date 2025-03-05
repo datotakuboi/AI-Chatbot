@@ -83,12 +83,13 @@ if "user" not in st.session_state:
             reset_submit = st.form_submit_button("Reset Password")
             if reset_submit:
                 try:
-                    reset_link = auth.generate_password_reset_link(email)
+                    auth.send_password_reset_email(email)
                     st.success(f"✅ Password reset email sent to **{email}**. Check your inbox!")
                 except firebase_admin.auth.UserNotFoundError:
                     st.error("❌ No user found with this email.")
                 except Exception as e:
                     st.error(f"❌ Error: {str(e)}")
+
     st.stop()
 
 # ✅ **If Logged In, Show Chatbot**
