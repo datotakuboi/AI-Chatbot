@@ -121,7 +121,7 @@ with st.sidebar:
     if "conversations" not in st.session_state:
         st.session_state.conversations = [[]]
 
-    if st.button("➕ New Chat"):
+    if st.button("+ New Chat"):
         st.session_state.conversations.append([])
         st.session_state.current_chat = len(st.session_state.conversations) - 1
         st.rerun()
@@ -146,7 +146,7 @@ with st.sidebar:
     # ✅ **Move "Logged in as" & Logout to the Bottom**
     st.markdown("---")  # Separator for clarity
     st.write(f"✅ Logged in as: **{st.session_state['user']['email']}**")
-    if st.button("🚪 Logout"):
+    if st.button("Logout"):
         st.session_state.pop("user", None)
         st.success("Logged out successfully!")
         time.sleep(1)
