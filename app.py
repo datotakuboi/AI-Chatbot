@@ -155,7 +155,7 @@ with st.sidebar:
 # ✅ **Welcome Message with Image**
 col1, col2, col3 = st.columns([1, 2, 1])  # Center the image
 with col2:
-    st.image("citlogo.png", width=150)  # Ensure it's centered with new parameter
+    st.image("citlogo.png", use_container_width=True)  # Ensure it's centered with new parameter
 
 # ✅ **Welcome Message**
 st.markdown("<h2 style='text-align: center;'>Welcome to AI Chatbot 🤖</h2>", unsafe_allow_html=True)
