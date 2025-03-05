@@ -159,10 +159,66 @@ if "conversations" not in st.session_state:
 if "current_chat" not in st.session_state:
     st.session_state.current_chat = 0
 
-# **Display Chat History**
-for message in st.session_state.conversations[st.session_state.current_chat]:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+# ✅ **Display Chat History with Styling**
+chat_history_placeholder = st.empty()
+
+def display_chat_history():
+    with chat_history_placeholder.container():
+        st.markdown("""
+            <style>
+            .user-message {
+                background-color: #DCF8C6;
+                color: #000000;
+                padding: 15px;
+                border-radius: 10px;
+                margin-bottom: 5px;
+                width: fit-content;
+                max-width: 70%;
+                word-wrap: break-word;
+                font-size: 16px;
+            }
+            .bot-message {
+                background-color: #F1F0F0;
+                color: #000000;
+                padding: 15px;
+                border-radius: 10px;
+                margin-bottom: 5px;
+                width: fit-content;
+                max-width: 70%;
+                word-wrap: break-word;
+                font-size: 16px;
+            }
+            .user-message-container {
+                display: flex;
+                justify-content: flex-end;
+            }
+            .bot-message-container {
+                display: flex;
+                justify-content: flex-start;
+            }
+            </style>
+        """, unsafe_allow_html=True)
+
+        for msg in st.session_state.conversations[st.session_state.current_chat]:
+            role = msg["role"]
+            message_content = msg["content"]
+
+            if role == "user":
+                st.markdown(f"""
+                <div class="user-message-container">
+                    <div class="user-message">{message_content}</div>
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.markdown(f"""
+                <div class="bot-message-container">
+                    <div class="bot-message">{message_content}</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+# ✅ **Call function to display chat history**
+display_chat_history()
+
 
 # **User Input**
 user_input = st.chat_input("Type your message...")
