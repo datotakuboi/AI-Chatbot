@@ -181,7 +181,7 @@ def display_chat_history():
                 padding: 12px;
                 border-radius: 15px;
                 margin-bottom: 5px;
-                max-width: 70%;
+                max-width: 60%; /* Reduce width */
                 word-wrap: break-word;
                 font-size: 16px;
             }
@@ -203,9 +203,12 @@ def display_chat_history():
                 display: flex;
                 flex-direction: column;
                 margin-bottom: 10px;
+                max-width: 700px; /* Set max width */
+                margin: auto; /* Centering */
             }
             </style>
         """, unsafe_allow_html=True)
+
 
         for msg in st.session_state.conversations[st.session_state.current_chat]:
             role = msg["role"]
