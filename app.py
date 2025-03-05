@@ -156,7 +156,7 @@ with st.sidebar:
 st.markdown(
     """
     <div style="text-align: center;">
-        <img src="https://raw.githubusercontent.com/datotakuboi/AI-Chatbot/main/citlogo.png" style="width: 200px;">
+        <img src="https://raw.githubusercontent.com/datotakuboi/AI-Chatbot/main/citlogo.png" style="width: 500px;">
         <h2>Welcome to CIT Chatbot 🤖</h2>
     </div>
     """,
