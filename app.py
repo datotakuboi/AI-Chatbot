@@ -64,12 +64,21 @@ if "user" not in st.session_state:
                 if login_submit:
                     try:
                         user = auth_pyrebase.sign_in_with_email_and_password(email, password)
-                        st.session_state["user"] = {"email": email, "uid": user["localId"]}
-                        st.success(f"✅ Logged in as {email}")
-                        time.sleep(1)
-                        st.rerun()
-                    except:
-                        st.error("❌ Incorrect email or password!")
+                        if "idToken" in user:
+                            st.session_state["user"] = {"email": email, "uid": user["localId"]}
+                            st.success(f"✅ Logged in as {email}")
+                            time.sleep(1)
+                            st.rerun()
+                        else:
+                            st.error("❌ Authentication failed. Please try again.")
+                    except Exception as e:
+                        error_message = str(e)
+                        if "INVALID_PASSWORD" in error_message:
+                            st.error("❌ Incorrect password. Please try again.")
+                        elif "EMAIL_NOT_FOUND" in error_message:
+                            st.error("❌ Email not registered. Please sign up first.")
+                        else:
+                            st.error(f"❌ Login failed: {error_message}")
 
         elif selected == "Create Account":
             st.title("🆕 Create Account")
