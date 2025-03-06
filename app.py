@@ -22,12 +22,13 @@ genai.configure(api_key=API_KEY)
 model = genai.GenerativeModel("gemini-2.0-flash")
 
 # ✅ **Initialize Firebase**
-try:
-    firebase_credentials = dict(st.secrets["service_account"])
-    cred = credentials.Certificate(firebase_credentials)
-    firebase_admin.initialize_app(cred)
-except Exception as e:
-    st.error(f"🔥 Failed to initialize Firebase Admin SDK: {e}")
+if not firebase_admin._apps:
+    try:
+        firebase_credentials = dict(st.secrets["service_account"])
+        cred = credentials.Certificate(firebase_credentials)
+        firebase_admin.initialize_app(cred)
+    except Exception as e:
+        st.error(f"🔥 Failed to initialize Firebase Admin SDK: {e}")
 
 # ✅ Load Firebase Web App Config (for authentication via Pyrebase)
 try:
@@ -36,7 +37,6 @@ try:
     auth_pyrebase = firebase.auth()
 except Exception as e:
     st.error(f"❌ Failed to initialize Firebase Web SDK: {e}")
-
 
 # ✅ **Sidebar Navigation**
 if "user" not in st.session_state:
