@@ -104,21 +104,15 @@ if "user" not in st.session_state:
                 
                 if reset_submit:
                     try:
-                        # Check if the email exists in Firebase Authentication
-                        user_info = auth_pyrebase.get_account_info(email)
-                        if user_info:
-                            auth_pyrebase.send_password_reset_email(email)
-                            st.success(f"✅ Password reset email sent to **{email}**. Check your inbox!")
-                        else:
-                            st.error("❌ No user found with this email. Please register first.")
+                        # Check if email exists
+                        auth.get_user_by_email(email)
+                        auth_pyrebase.send_password_reset_email(email)
+                        st.success(f"✅ Password reset email sent to **{email}**. Check your inbox!")
+                    except firebase_admin.auth.UserNotFoundError:
+                        st.error("❌ No user found with this email. Please register first.")
                     except Exception as e:
-                        error_message = str(e).lower()
-                        if "email_not_found" in error_message:
-                            st.error("❌ No user found with this email. Please register first.")
-                        else:
-                            st.error(f"❌ Failed to send reset email: {error_message}")
+                        st.error(f"❌ Failed to send reset email: {str(e)}")
     st.stop()
-
 
 
 # ✅ **If Logged In, Show Chatbot**
