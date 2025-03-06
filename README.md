@@ -1,17 +1,3 @@
-AI Chatbot Using Streamlit and Google's Gemini-Pro 🤖💬
-An interactive AI-powered chatbot built with Streamlit and Google's Gemini-Pro, designed to provide intelligent responses to user queries.
-
-🚀 Features
-✅ Uses Gemini-Pro for natural language understanding
-✅ Interactive Streamlit web app interface
-✅ Supports real-time chat responses
-✅ Easy deployment with Python
-
-🛠️ Tech Stack
-Frontend: Streamlit
-AI Model: Gemini-Pro (Google Generative AI API)
-Backend: Python
-API: Google Generative AI SDK
 
 📌 Setup & Installation
 1️⃣ Clone the repository:
