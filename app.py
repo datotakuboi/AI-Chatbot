@@ -104,6 +104,8 @@ if "user" not in st.session_state:
                 
                 if reset_submit:
                     try:
+                        # Check if the email exists in Firebase Authentication
+                        auth_pyrebase.get_account_info(email)
                         auth_pyrebase.send_password_reset_email(email)
                         st.success(f"✅ Password reset email sent to **{email}**. Check your inbox!")
                     except Exception as e:
