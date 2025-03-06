@@ -1,6 +1,6 @@
 import streamlit as st
 import firebase_admin
-from firebase_admin import credentials
+from firebase_admin import credentials, auth
 import pyrebase
 import google.generativeai as genai
 import time
@@ -22,18 +22,21 @@ genai.configure(api_key=API_KEY)
 model = genai.GenerativeModel("gemini-2.0-flash")
 
 # ✅ **Initialize Firebase**
-firebase_config = {
-    "apiKey": st.secrets["service_account"]["apiKey"],
-    "authDomain": st.secrets["service_account"]["authDomain"],
-    "databaseURL": st.secrets["service_account"]["databaseURL"],
-    "storageBucket": st.secrets["service_account"]["storageBucket"],
-    "projectId": st.secrets["service_account"]["projectId"],
-    "messagingSenderId": st.secrets["service_account"]["messagingSenderId"],
-    "appId": st.secrets["service_account"]["appId"]
-}
+try:
+    firebase_credentials = dict(st.secrets["service_account"])
+    cred = credentials.Certificate(firebase_credentials)
+    firebase_admin.initialize_app(cred)
+except Exception as e:
+    st.error(f"🔥 Failed to initialize Firebase Admin SDK: {e}")
 
-firebase = pyrebase.initialize_app(firebase_config)
-auth_pyrebase = firebase.auth()
+# ✅ Load Firebase Web App Config (for authentication via Pyrebase)
+try:
+    firebase_config = dict(st.secrets["firebase_config"])
+    firebase = pyrebase.initialize_app(firebase_config)
+    auth_pyrebase = firebase.auth()
+except Exception as e:
+    st.error(f"❌ Failed to initialize Firebase Web SDK: {e}")
+
 
 # ✅ **Sidebar Navigation**
 if "user" not in st.session_state:
