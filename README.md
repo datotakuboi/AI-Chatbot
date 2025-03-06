@@ -2,8 +2,8 @@
 📌 Setup & Installation
 
 1️⃣ Clone the repository:
-git clone https://github.com/your-username/ai-chatbot-gemini.git  
-cd ai-chatbot-gemini
+git clone [https://github.com/your-username/ai-chatbot-gemini.git  
+cd ai-chatbot-gemini](https://github.com/datotakuboi/AI-Chatbot.git)
 
 2️⃣ Install dependencies:
 pip install -r requirements.txt
