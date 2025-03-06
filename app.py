@@ -96,6 +96,7 @@ if "user" not in st.session_state:
                         st.error("❌ No user found with this email.")
     st.stop()
 
+
 # ✅ **If Logged In, Show Chatbot**
 with st.sidebar:
     # ✅ **PDF Upload (Appears Only After Login)**
