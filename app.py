@@ -72,11 +72,13 @@ if "user" not in st.session_state:
                         else:
                             st.error("❌ Authentication failed. Please try again.")
                     except Exception as e:
-                        error_message = str(e)
-                        if "INVALID_PASSWORD" in error_message:
-                            st.error("❌ Incorrect password. Please try again.")
-                        elif "EMAIL_NOT_FOUND" in error_message:
+                        error_message = str(e).lower()  # Convert to lowercase to catch variations
+                        if "invalid_password" in error_message or "invalid_login_credentials" in error_message:
+                            st.error("❌ Incorrect email or password. Please try again.")
+                        elif "email_not_found" in error_message:
                             st.error("❌ Email not registered. Please sign up first.")
+                        elif "too_many_attempts" in error_message:
+                            st.error("❌ Too many failed attempts. Please reset your password or try again later.")
                         else:
                             st.error(f"❌ Login failed: {error_message}")
 
