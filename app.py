@@ -1,6 +1,7 @@
 import streamlit as st
 import firebase_admin
-from firebase_admin import credentials, auth
+from firebase_admin import credentials
+import pyrebase
 import google.generativeai as genai
 import time
 from streamlit_option_menu import option_menu
@@ -21,16 +22,18 @@ genai.configure(api_key=API_KEY)
 model = genai.GenerativeModel("gemini-2.0-flash")
 
 # ✅ **Initialize Firebase**
-def initialize_firebase():
-    if not firebase_admin._apps:
-        try:
-            firebase_credentials = dict(st.secrets["service_account"])
-            cred = credentials.Certificate(firebase_credentials)
-            firebase_admin.initialize_app(cred)
-        except Exception as e:
-            st.error(f"🔥 Failed to initialize Firebase: {e}")
+firebase_config = {
+    "apiKey": st.secrets["service_account"]["apiKey"],
+    "authDomain": st.secrets["service_account"]["authDomain"],
+    "databaseURL": st.secrets["service_account"]["databaseURL"],
+    "storageBucket": st.secrets["service_account"]["storageBucket"],
+    "projectId": st.secrets["service_account"]["projectId"],
+    "messagingSenderId": st.secrets["service_account"]["messagingSenderId"],
+    "appId": st.secrets["service_account"]["appId"]
+}
 
-initialize_firebase()
+firebase = pyrebase.initialize_app(firebase_config)
+auth_pyrebase = firebase.auth()
 
 # ✅ **Sidebar Navigation**
 if "user" not in st.session_state:
@@ -45,26 +48,25 @@ if "user" not in st.session_state:
 
 # ✅ **Handle Authentication**
 if "user" not in st.session_state:
-    col1, col2, col3 = st.columns([1, 2, 1])  # Centering the forms
+    col1, col2, col3 = st.columns([1, 2, 1])
 
-    with col2:  # Form appears in the middle column
+    with col2:
         if selected == "Login":
             st.title("🔑 Login")
             with st.form("Login Form", clear_on_submit=False):
                 email = st.text_input("Email", placeholder="Enter your email")
                 password = st.text_input("Password", placeholder="Enter your password", type="password")
                 login_submit = st.form_submit_button("Login")
+                
                 if login_submit:
                     try:
-                        user = auth.get_user_by_email(email)
-                        st.session_state["user"] = {"email": email, "uid": user.uid}
+                        user = auth_pyrebase.sign_in_with_email_and_password(email, password)
+                        st.session_state["user"] = {"email": email, "uid": user["localId"]}
                         st.success(f"✅ Logged in as {email}")
                         time.sleep(1)
                         st.rerun()
-                    except firebase_admin.auth.UserNotFoundError:
-                        st.error("❌ No user found. Please register first!")
-                    except Exception as e:
-                        st.error(f"❌ Error: {str(e)}")
+                    except:
+                        st.error("❌ Incorrect email or password!")
 
         elif selected == "Create Account":
             st.title("🆕 Create Account")
@@ -72,27 +74,26 @@ if "user" not in st.session_state:
                 email = st.text_input("Email", placeholder="Enter your email")
                 password = st.text_input("Password", type="password", placeholder="Create a strong password")
                 register_submit = st.form_submit_button("Sign Up")
+                
                 if register_submit:
                     try:
-                        auth.create_user(email=email, password=password)
+                        auth_pyrebase.create_user_with_email_and_password(email, password)
                         st.success("✅ Registration successful! Please log in.")
-                    except Exception as e:
-                        st.error(f"❌ Registration failed: {str(e)}")
+                    except:
+                        st.error("❌ Registration failed. Try again with a stronger password.")
 
         elif selected == "Forgot Password?":
             st.title("🔄 Forgot Password?")
             with st.form("Forgot Password Form", clear_on_submit=False):
                 email = st.text_input("Email", placeholder="Enter your registered email")
                 reset_submit = st.form_submit_button("Reset Password")
+                
                 if reset_submit:
                     try:
-                        reset_link = auth.generate_password_reset_link(email)
+                        auth_pyrebase.send_password_reset_email(email)
                         st.success(f"✅ Password reset email sent to **{email}**. Check your inbox!")
-                    except firebase_admin.auth.UserNotFoundError:
+                    except:
                         st.error("❌ No user found with this email.")
-                    except Exception as e:
-                        st.error(f"❌ Error: {str(e)}")
-
     st.stop()
 
 # ✅ **If Logged In, Show Chatbot**
@@ -162,8 +163,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
-
 
 # ✅ **Chatbot Interface**
 if "conversations" not in st.session_state:
