@@ -1,8 +1,9 @@
+setuptools
 streamlit
 firebase-admin
-python-dotenv
+pyrebase4
 google-generativeai
 streamlit-option-menu
 PyPDF2
-google-auth
-pyrebase4
+requests==2.31.0
+urllib3<2.0
