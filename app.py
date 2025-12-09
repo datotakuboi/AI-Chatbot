@@ -8,7 +8,7 @@ from streamlit_option_menu import option_menu
 import PyPDF2
 
 # ✅ **Set page configuration**
-st.set_page_config(page_title="AI Chatbot", page_icon="🤖", layout="wide")
+st.set_page_config(page_title="AI Chatbots", page_icon="🤖", layout="wide")
 
 # ✅ **Load API Key from Streamlit Secrets**
 try:
