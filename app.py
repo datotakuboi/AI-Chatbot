@@ -101,6 +101,24 @@ ROLE_SPECIFIC_PROMPTS = {
 """
 }
 
+def scrape_cit_info():
+    """Scrapes the CIT University website for recent news and updates."""
+    try:
+        url = "https://cit.edu/news-and-updates/"
+        headers = {"User-Agent": "Mozilla/5.0"}
+        response = requests.get(url, headers=headers, timeout=5)
+        
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text, 'html.parser')
+            # Scrapes the first 5 news titles
+            news_items = soup.find_all(['h2', 'h3'], class_="entry-title") 
+            news_list = [item.get_text(strip=True) for item in news_items[:5]]
+            return {"status": "success", "news": news_list}
+            
+        return {"status": "error", "news": []}
+    except Exception as e:
+        return {"status": "error", "message": str(e), "news": []}
+    
 # ✅ **Function to generate role-specific response**
 def generate_school_response(user_message, user_role="Student"):
     """Generate response using role-specific system prompt and school information"""
