@@ -317,12 +317,30 @@ with st.sidebar:
     # **Display Chat History**
     st.markdown("### Chat History")
     for i, conv in enumerate(st.session_state.conversations):
-        with st.expander(f"Conversation {i+1}"):
+        is_active_chat = i == st.session_state.current_chat
+        conversation_label = f"Conversation {i+1}"
+        if is_active_chat:
+            conversation_label += " (Active)"
+
+        with st.expander(conversation_label, expanded=is_active_chat):
+            if st.button("Open", key=f"open_{i}", disabled=is_active_chat):
+                st.session_state.current_chat = i
+                st.rerun()
+
             for msg in conv:
                 role = "🧑" if msg["role"] == "user" else "🤖"
                 st.write(f"{role} {msg['content']}")
             if st.button("🗑 Delete", key=f"delete_{i}"):
                 del st.session_state.conversations[i]
+
+                if not st.session_state.conversations:
+                    st.session_state.conversations = [[]]
+                    st.session_state.current_chat = 0
+                elif st.session_state.current_chat >= len(st.session_state.conversations):
+                    st.session_state.current_chat = len(st.session_state.conversations) - 1
+                elif i < st.session_state.current_chat:
+                    st.session_state.current_chat -= 1
+
                 st.rerun()
 
     if st.button("🗑 Clear All Chats"):
