@@ -320,30 +320,23 @@ with st.sidebar:
         st.session_state.current_chat = len(st.session_state.conversations) - 1
         st.rerun()
 
-    def get_conversation_preview(conv, index):
-        user_messages = [msg.get("content", "").strip() for msg in conv if msg.get("role") == "user" and msg.get("content", "").strip()]
-        base_title = user_messages[0] if user_messages else "New conversation"
-        if len(base_title) > 45:
-            base_title = f"{base_title[:45]}..."
-        message_count = len([msg for msg in conv if str(msg.get("content", "")).strip() and str(msg.get("content", "")).strip() != "🤖 Thinking..."])
-        return f"{index + 1}. {base_title}", message_count
-
     # **Display Chat History**
     st.markdown("### Chat History")
     for i, conv in enumerate(st.session_state.conversations):
         is_active_chat = i == st.session_state.current_chat
-        conversation_label, message_count = get_conversation_preview(conv, i)
+        conversation_label = f"Conversation {i+1}"
         if is_active_chat:
-            conversation_label = f"🟢 {conversation_label}"
+            conversation_label += " (Active)"
 
-        st.caption(f"{conversation_label}  |  {message_count} message(s)")
-        open_col, delete_col = st.columns([3, 1])
-        with open_col:
-            if st.button("Open", key=f"open_{i}", disabled=is_active_chat, use_container_width=True):
+        with st.expander(conversation_label, expanded=is_active_chat):
+            if st.button("Open", key=f"open_{i}", disabled=is_active_chat):
                 st.session_state.current_chat = i
                 st.rerun()
-        with delete_col:
-            if st.button("🗑", key=f"delete_{i}", use_container_width=True):
+
+            for msg in conv:
+                role = "🧑" if msg["role"] == "user" else "🤖"
+                st.write(f"{role} {msg['content']}")
+            if st.button("🗑 Delete", key=f"delete_{i}"):
                 del st.session_state.conversations[i]
 
                 if not st.session_state.conversations:
@@ -403,6 +396,41 @@ def display_chat_history():
     with chat_history_placeholder.container():
         st.markdown("""
     <style>
+    /* Chat Bubble Styles */
+    .chat-bubble {
+        padding: 12px;
+        border-radius: 15px;
+        margin-bottom: 5px;
+        max-width: 65%; /* Ensures bubbles don't stretch too much */
+        word-wrap: break-word;
+        font-size: 16px;
+    }
+
+    .user-bubble {
+        background-color: #0078FF;
+        color: white;
+        align-self: flex-end;
+        text-align: right;
+        margin-left: auto;
+    }
+
+    .bot-bubble {
+        background-color: #F0F0F0;
+        color: black;
+        align-self: flex-start;
+        text-align: left;
+        margin-right: auto;
+    }
+
+    /* Chat Container - Centers the Chat */
+    .chat-container {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 10px;
+        max-width: 750px; /* Set max width to match ChatGPT */
+        margin: auto; /* Center chat container */
+    }
+
     /* Fix Input Field Width */
     .stChatInput {
         display: flex;
@@ -427,18 +455,23 @@ def display_chat_history():
     </style>
 """, unsafe_allow_html=True)
 
-        active_conversation = st.session_state.conversations[st.session_state.current_chat]
-        if not active_conversation:
-            st.info("Start a new conversation by typing your question below.")
-            return
 
-        for msg in active_conversation:
+        for msg in st.session_state.conversations[st.session_state.current_chat]:
             role = msg["role"]
             message_content = msg["content"]
-            chat_role = "user" if role == "user" else "assistant"
-            avatar = "🧑" if role == "user" else "🤖"
-            with st.chat_message(chat_role, avatar=avatar):
-                st.markdown(message_content)
+
+            if role == "user":
+                st.markdown(f"""
+                <div class="chat-container">
+                    <div class="chat-bubble user-bubble">{message_content}</div>
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.markdown(f"""
+                <div class="chat-container">
+                    <div class="chat-bubble bot-bubble">{message_content}</div>
+                </div>
+                """, unsafe_allow_html=True)
 
 
 # ✅ **Call function to display chat history**
