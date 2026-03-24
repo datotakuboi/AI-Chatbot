@@ -250,10 +250,18 @@ if "user" not in st.session_state:
 
 # ✅ **If Logged In, Show Chatbot**
 with st.sidebar:
+    # Ensure chat state exists before role-switch logic
+    if "conversations" not in st.session_state:
+        st.session_state.conversations = [[]]
+    if "current_chat" not in st.session_state:
+        st.session_state.current_chat = 0
+
     # ✅ **User Role Selection (Appears Right After Login)**
     st.markdown("## 👤 Select Your Role")
     if "user_role" not in st.session_state:
         st.session_state.user_role = "Student"
+    if "previous_user_role" not in st.session_state:
+        st.session_state.previous_user_role = st.session_state.user_role
     
     user_role = st.radio(
         "What is your role at CIT University?",
@@ -261,6 +269,17 @@ with st.sidebar:
         index=["Student", "Teacher", "Staff"].index(st.session_state.user_role),
         key="role_selector"
     )
+
+    # Start a fresh chat when role changes, while keeping old chat in history
+    if user_role != st.session_state.previous_user_role:
+        current_conversation = st.session_state.conversations[st.session_state.current_chat]
+        if current_conversation:
+            st.session_state.conversations.append([])
+            st.session_state.current_chat = len(st.session_state.conversations) - 1
+        st.session_state.previous_user_role = user_role
+        st.session_state.user_role = user_role
+        st.rerun()
+
     st.session_state.user_role = user_role
     
     # Display role-specific welcome message
@@ -290,9 +309,6 @@ with st.sidebar:
 
     # ✅ **New Chat & Chat History**
     st.markdown("## 💬 Chat")
-    if "conversations" not in st.session_state:
-        st.session_state.conversations = [[]]
-
     if st.button("+ New Chat"):
         st.session_state.conversations.append([])
         st.session_state.current_chat = len(st.session_state.conversations) - 1
