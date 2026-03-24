@@ -6,6 +6,9 @@ import google.generativeai as genai
 import time
 from streamlit_option_menu import option_menu
 import PyPDF2
+import requests
+from bs4 import BeautifulSoup
+from datetime import datetime, timedelta
 
 # ✅ **Set page configuration**
 st.set_page_config(page_title="AI Chatbots", page_icon="🤖", layout="wide")
@@ -20,6 +23,118 @@ except KeyError:
 # ✅ **Initialize Gemini AI**
 genai.configure(api_key=API_KEY)
 model = genai.GenerativeModel("gemini-3-flash-preview")
+
+# ✅ **School Chatbot System Prompt**
+SCHOOL_SYSTEM_PROMPT = """You are an intelligent and friendly CIT University (Cebu Institute of Technology) Universal Assistant Chatbot.
+
+## Your Role:
+- Provide helpful information about CIT University to students, teachers, and staff
+- Answer questions about programs, admissions, scholarships, and campus life
+- Help with academic matters, assignments, and learning support
+- Assist teachers and staff with school policies, procedures, and administrative matters
+- Maintain a professional and welcoming tone
+- Be adaptive to the user's role (Student, Teacher, or Staff)
+
+## Key Information About CIT University:
+- Location: N. Bacalso Avenue, Cebu City, Philippines
+- Contact: +63 32 411 2000 (trunkline) | info@cit.edu
+- Website: https://cit.edu/
+
+## Programs Offered:
+- Basic Education (Elementary, Junior High School, Senior High School)
+- College of Engineering & Architecture (CEA)
+- College of Computer Studies (CCS)
+- College of Arts, Sciences & Education (CASE)
+- College of Management & Business Administration (CMBA)
+- College of Nursing, Allied Health Studies & Pharmacy (CNAHS)
+- College of Criminal Justice (CCJ)
+
+## Services Available:
+- Enrollment Portal: https://cituweb.pinnacle.com.ph/aims/applicants/
+- WITS (Student Portal): https://student.cituwits.com/
+- Payment Portal: https://cituonlinepayment.powerappsportals.com/Payment-Portal/
+- Scholarships Information: https://cit.edu/scholarships/
+
+## Teacher & Staff Information:
+- Leave Request Procedures: Contact HR Office at +63 32 411 2000
+- Staff Portal: https://student.cituwits.com/ (or contact IT for access)
+- School Policies: Refer to the Faculty Handbook or contact Administration
+- Professional Development: Contact Academic Affairs for training opportunities
+
+## Important Guidelines:
+- Always be helpful, professional, and courteous
+- If you don't have specific information, direct users to contact the appropriate office
+- For Students: Encourage academic success and school involvement
+- For Teachers/Staff: Provide information about policies, procedures, and professional matters
+- Be welcoming and supportive to all users
+- Do not provide false information about programs or policies
+"""
+
+# ✅ **Role-Specific System Prompts**
+ROLE_SPECIFIC_PROMPTS = {
+    "Student": """
+## Additional Guidelines for Students:
+- Help with schoolwork, assignments, and academic questions
+- Provide study tips and learning strategies
+- Direct to academic support services
+- Encourage participation in school activities
+- Provide information about student services and resources
+- Help navigate the enrollment and registration process
+""",
+    "Teacher": """
+## Additional Guidelines for Teachers:
+- Provide information about school policies and procedures
+- Help with administrative and classroom management matters
+- Assist with professional development information
+- Provide guidance on leave procedures and HR policies
+- Help with curriculum and teaching resources
+- Support with school events and activities coordination
+""",
+    "Staff": """
+## Additional Guidelines for Staff:
+- Provide information about school administrative procedures
+- Help with HR-related questions and policies
+- Assist with workplace matters and staff services
+- Direct to appropriate departments for specific requests
+- Provide information about staff benefits and opportunities
+- Help with facility and operational matters
+"""
+}
+
+# ✅ **Function to generate role-specific response**
+def generate_school_response(user_message, user_role="Student"):
+    """Generate response using role-specific system prompt and school information"""
+    try:
+        # Fetch latest school info
+        school_info = scrape_cit_info()
+        
+        # Enhance system prompt with role-specific instructions
+        enhanced_prompt = SCHOOL_SYSTEM_PROMPT
+        if user_role in ROLE_SPECIFIC_PROMPTS:
+            enhanced_prompt += ROLE_SPECIFIC_PROMPTS[user_role]
+        
+        # Add latest news if available
+        if school_info["status"] == "success" and school_info["news"]:
+            enhanced_prompt += "\n\n## Recent News & Updates:\n"
+            for news in school_info["news"]:
+                enhanced_prompt += f"- {news}\n"
+        
+        # Generate response
+        role_context = f"User Role: {user_role}\n\n"
+        full_message = f"{enhanced_prompt}\n\n---\n\n{role_context}{user_role}: {user_message}\nAssistant:"
+        
+        response = model.generate_content(
+            full_message,
+            generation_config=genai.types.GenerationConfig(
+                temperature=0.7,
+                max_output_tokens=1024,
+                top_p=0.95,
+            )
+        )
+        
+        return response.text
+    except Exception as e:
+        return f"Sorry, I encountered an error: {str(e)}. Please try again."
 
 # ✅ **Initialize Firebase**
 if not firebase_admin._apps:
@@ -117,6 +232,25 @@ if "user" not in st.session_state:
 
 # ✅ **If Logged In, Show Chatbot**
 with st.sidebar:
+    # ✅ **User Role Selection (Appears Right After Login)**
+    st.markdown("## 👤 Select Your Role")
+    if "user_role" not in st.session_state:
+        st.session_state.user_role = "Student"
+    
+    user_role = st.radio(
+        "What is your role at CIT University?",
+        options=["Student", "Teacher", "Staff"],
+        index=["Student", "Teacher", "Staff"].index(st.session_state.user_role),
+        key="role_selector"
+    )
+    st.session_state.user_role = user_role
+    
+    # Display role-specific welcome message
+    role_emoji = {"Student": "🎓", "Teacher": "👨‍🏫", "Staff": "👔"}
+    st.info(f"{role_emoji[user_role]} You're logged in as a **{user_role}**")
+    
+    st.markdown("---")
+    
     # ✅ **PDF Upload (Appears Only After Login)**
     st.markdown("## 📂 Upload PDF for Context")
     uploaded_pdfs = st.file_uploader("Upload PDFs", type=["pdf"], accept_multiple_files=True)
@@ -173,11 +307,16 @@ with st.sidebar:
         st.rerun()
 
 # ✅ Display logo and welcome message in the perfect center
+role_emoji = {"Student": "🎓", "Teacher": "👨‍🏫", "Staff": "👔"}
+current_role = st.session_state.get("user_role", "Student")
+role_icon = role_emoji.get(current_role, "👤")
+
 st.markdown(
-    """
+    f"""
     <div style="text-align: center;">
         <img src="https://raw.githubusercontent.com/datotakuboi/AI-Chatbot/main/citlogo.png" style="width: 500px;">
         <h2>Welcome to CIT Chatbot 🤖</h2>
+        <p>You're accessing as a <strong>{current_role}</strong> {role_icon}</p>
     </div>
     """,
     unsafe_allow_html=True
@@ -305,15 +444,10 @@ if user_input:
     if pdf_text:
         prompt = f"Based on the following extracted information from uploaded PDFs:\n\n{pdf_text}\n\n{prompt}"
 
-    # **Generate AI Response**
+    # **Generate AI Response (with role-specific system prompt)**
     try:
-        response = model.generate_content(prompt, generation_config={
-            "temperature": 0.7,  # Adjusts response creativity
-            "top_p": 0.9,        # Ensures diverse responses
-            "top_k": 40,         # Limits response randomness
-            "max_output_tokens": 2048  # Allows **longer** responses
-        })
-        bot_response = response.text if response and response.text else "I'm not sure how to respond."
+        # Get response using role-specific system prompt
+        bot_response = generate_school_response(user_input, st.session_state.user_role)
     except Exception as e:
         bot_response = f"⚠️ Error: {str(e)}"
 

@@ -2,6 +2,7 @@ setuptools
 streamlit
 firebase-admin
 pyrebase4
+pyrebase4
 google-generativeai
 streamlit-option-menu
 PyPDF2
