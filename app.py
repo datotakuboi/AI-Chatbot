@@ -273,7 +273,13 @@ with st.sidebar:
     # Start a fresh chat when role changes, while keeping old chat in history
     if user_role != st.session_state.previous_user_role:
         current_conversation = st.session_state.conversations[st.session_state.current_chat]
-        if current_conversation:
+        has_real_messages = any(
+            str(msg.get("content", "")).strip() and str(msg.get("content", "")).strip() != "🤖 Thinking..."
+            for msg in current_conversation
+        )
+
+        # Only save/start a new chat if there is an actual conversation
+        if has_real_messages:
             st.session_state.conversations.append([])
             st.session_state.current_chat = len(st.session_state.conversations) - 1
         st.session_state.previous_user_role = user_role
