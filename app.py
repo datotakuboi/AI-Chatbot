@@ -1,7 +1,7 @@
 import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, auth
-import pyrebase4 as pyrebase
+import pyrebase
 import google.generativeai as genai
 import time
 from streamlit_option_menu import option_menu
